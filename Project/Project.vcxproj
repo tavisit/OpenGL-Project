@@ -23,15 +23,12 @@
     <None Include="shaders\basic.vert" />
     <None Include="shaders\depthMapShader.frag" />
     <None Include="shaders\depthMapShader.vert" />
-    <None Include="shaders\lightCube.frag" />
-    <None Include="shaders\lightCube.vert" />
-    <None Include="shaders\screenQuad.frag" />
-    <None Include="shaders\screenQuad.vert" />
     <None Include="shaders\skyboxShader.frag" />
     <None Include="shaders\skyboxShader.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
+    <ClInclude Include="Constants.hpp" />
     <ClInclude Include="DeltaTime.h" />
     <ClInclude Include="InGameObject.h" />
     <ClInclude Include="Mesh.hpp" />
@@ -45,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Constants.cpp" />
     <ClCompile Include="DeltaTime.cpp" />
     <ClCompile Include="InGameObject.cpp" />
     <ClCompile Include="main.cpp" />

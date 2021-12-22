@@ -3,13 +3,12 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include "Constants.hpp"
 
 #include <string>
 
 namespace gps {
-    
-    enum MOVE_DIRECTION {MOVE_FORWARD, MOVE_BACKWARD, MOVE_RIGHT, MOVE_LEFT};
-    
+       
     class Camera
     {
     public:

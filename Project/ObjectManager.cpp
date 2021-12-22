@@ -1,17 +1,6 @@
 #include "ObjectManager.hpp"
 
 namespace gps {
-	ObjectManager::ObjectManager()
-	{
-		this->myCamera = gps::Camera(
-			glm::vec3(0.0f, 0.0f, 3.0f),
-			glm::vec3(0.0f, 0.0f, -10.0f),
-			glm::vec3(0.0f, 1.0f, 0.0f));
-	}
-	ObjectManager::ObjectManager(gps::Camera myCamera)
-	{
-		this->myCamera = myCamera;
-	}
 	void ObjectManager::initFBO()
     {
 		//generate FBO ID
@@ -34,31 +23,37 @@ namespace gps {
 		glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-    void ObjectManager::initializeShaders()
-    {
-    }
-    void ObjectManager::renderObjects()
-    {
-    }
 	void ObjectManager::initModels()
 	{
-		lights[0].initializeObject("models/cube/cube.obj");
-
+		for (int index = 0; index < FIELD_LENGTH; index++)
+		{
+			fieldObjects[index].initializeObject("models/grass/grass.obj", "models/grass/");
+		}
 		for (int index = 0; index < STREET_LENGTH; index++)
 		{
-			streetsObject[index].initializeObject("models/road/road.obj");
+			streetsObject[index].initializeObject("models/road/road.obj","models/road/");
 		}
-		wallsObject[0].initializeObject("models/buildings/WallGate.obj");
+		for (int index = 0; index < WALL_LENGTH; index++)
+		{
+			wallsObject[index].initializeObject("models/buildings/Wall.obj","models/buildings/");
+		}
+		for (int index = 0; index < GATES_LENGTH; index++)
+		{
+			gatesObject[index].initializeObject("models/buildings/WallGate.obj", "models/buildings/");
+		}
+		for (int index = 0; index < BUILDINGS_LENGTH; index++)
+		{
+			buildingsObject[index].initializeObject("models/buildings/WallGate.obj", "models/buildings/");
+		}
 	}
 	void ObjectManager::initShaders()
 	{
-
 		shader.loadShader("shaders/basic.vert", "shaders/basic.frag");
-		lightShader.loadShader("shaders/lightCube.vert", "shaders/lightCube.frag");
 		depthMapShader.loadShader("shaders/simpleDepthMap.vert", "shaders/simpleDepthMap.frag");
 	}
 	void ObjectManager::initUniforms(gps::Camera myCamera, gps::Window myWindow)
 	{
+
 		shader.useShaderProgram();
 
 		modelLoc = glGetUniformLocation(shader.shaderProgram, "model");
@@ -79,121 +74,113 @@ namespace gps {
 		glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
 
 		// set light color
-		lightColor = glm::vec3(1.0f, 1.0f, 1.0f); //white light
+		lightColor = glm::vec3(0.5f, 0.5f, 0.5f); //white light
 		lightColorLoc = glGetUniformLocation(shader.shaderProgram, "lightColor");
 		glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
 
-		// pointlight
-		lightPos1 = glm::vec3(4.8f, 1.77f, -50.75f); // la sperietoare
-		lightPos1Loc = glGetUniformLocation(shader.shaderProgram, "lightPos1");
-		glUniform3fv(lightPos1Loc, 1, glm::value_ptr(lightPos1));
-
-		lightPos2 = glm::vec3(-30.3f, 3.77f, -42.0f); // la butoaie
-		lightPos2Loc = glGetUniformLocation(shader.shaderProgram, "lightPos2");
-		glUniform3fv(lightPos2Loc, 1, glm::value_ptr(lightPos2));
-
-
-		// spotlight
-		spotlight1 = glm::cos(glm::radians(40.5f));
-		spotlight2 = glm::cos(glm::radians(100.5f));
-
-		spotLightDirection = glm::vec3(0, -1, 0);
-		spotLightPosition = glm::vec3(32.0f, 1.0f, -33.0f);
-
-		glUniform1f(glGetUniformLocation(shader.shaderProgram, "spotlight1"), spotlight1);
-		glUniform1f(glGetUniformLocation(shader.shaderProgram, "spotlight2"), spotlight2);
-
-		glUniform3fv(glGetUniformLocation(shader.shaderProgram, "spotLightDirection"), 1, glm::value_ptr(spotLightDirection));
-		glUniform3fv(glGetUniformLocation(shader.shaderProgram, "spotLightPosition"), 1, glm::value_ptr(spotLightPosition));
-
-
-		lightShader.useShaderProgram();
-		glUniformMatrix4fv(glGetUniformLocation(lightShader.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		for (int index = 0; index < FIELD_LENGTH; index++)
+		{
+			fieldObjects[index].initializeUniforms(shader, myCamera, myWindow);
+		}
+		for (int index = 0; index < STREET_LENGTH; index++)
+		{
+			streetsObject[index].initializeUniforms(shader,myCamera,myWindow);
+		}
+		for (int index = 0; index < GATES_LENGTH; index++)
+		{
+			gatesObject[index].initializeUniforms(shader, myCamera, myWindow);
+		}
 	}
-	void ObjectManager::renderScene(gps::Window myWindow)
+	void ObjectManager::renderScene(gps::Camera myCamera,gps::Window myWindow)
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// 1st step: render the scene to the depth buffer 
-
 		depthMapShader.useShaderProgram();
 
-		glUniformMatrix4fv(glGetUniformLocation(depthMapShader.shaderProgram, "lightSpaceTrMatrix"),
-			1,
-			GL_FALSE,
-			glm::value_ptr(computeLightSpaceTrMatrix()));
-
+		glUniformMatrix4fv(glGetUniformLocation(depthMapShader.shaderProgram, "lightSpaceTrMatrix"), 1, GL_FALSE, glm::value_ptr(computeLightSpaceTrMatrix(myCamera)));
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-
-		// draw the raccoon
-		depthMapShader.useShaderProgram();
+		for (int index = 0; index < FIELD_LENGTH; index++)
+		{
+			fieldObjects[index].renderShadow(depthMapShader);
+		}
 		for (int index = 0; index < STREET_LENGTH; index++)
 		{
 			streetsObject[index].renderShadow(depthMapShader);
 		}
-		wallsObject[0].renderShadow(depthMapShader);
-
-		/////////////////////////////////////////////////
-
+		for (int index = 0; index < GATES_LENGTH; index++)
+		{
+			gatesObject[index].renderShadow(depthMapShader);
+		}
+		glCheckError();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		// 2nd step: render the scene
-
+		//
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shader.useShaderProgram();
 
-		// send lightSpace matrix to shader
-		glUniformMatrix4fv(glGetUniformLocation(shader.shaderProgram, "lightSpaceTrMatrix"), 1, GL_FALSE, glm::value_ptr(computeLightSpaceTrMatrix()));
-
-		// send view matrix to shader
 		view = myCamera.getViewMatrix();
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-		glUniformMatrix4fv(glGetUniformLocation(shader.shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-
-		// compute light direction transformation matrix
 		lightDirMatrix = glm::mat3(glm::inverseTranspose(view));
-		// send lightDir matrix data to shader
 		glUniformMatrix3fv(lightDirMatrixLoc, 1, GL_FALSE, glm::value_ptr(lightDirMatrix));
-
-		glViewport(0, 0, myWindow.getWindowDimensions().width, myWindow.getWindowDimensions().height);
-		shader.useShaderProgram();
-
 		// bind the depth map
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, depthMapTexture);
 		glUniform1i(glGetUniformLocation(shader.shaderProgram, "shadowMap"), 3);
 
+		glUniformMatrix4fv(glGetUniformLocation(shader.shaderProgram, "lightSpaceTrMatrix"),
+			1,
+			GL_FALSE,
+			glm::value_ptr(computeLightSpaceTrMatrix(myCamera)));
 
+		for (int index = 0; index < FIELD_LENGTH; index++)
+		{
+			fieldObjects[index].renderObject(shader);
+		}
 		for (int index = 0; index < STREET_LENGTH; index++)
 		{
-			streetsObject[index].renderObject();
+			streetsObject[index].renderObject(shader);
 		}
-		wallsObject[0].renderObject();
+		for (int index = 0; index < GATES_LENGTH; index++)
+		{
+			gatesObject[index].renderObject(shader);
+		}
+		glCheckError();
 	
-
-		// draw a white cube around the light
-		lightShader.useShaderProgram();
-		glUniformMatrix4fv(glGetUniformLocation(lightShader.shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		model = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::translate(model, lightDir);
-		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f) * 6.0f);
-		glUniformMatrix4fv(glGetUniformLocation(lightShader.shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-		lights[0].renderObject();
 	}
-	void ObjectManager::setCamera(gps::Camera myCamera)
+	void ObjectManager::refreshContent(gps::Camera myCamera)
 	{
-		this->myCamera = myCamera;
+		for (int index = 0; index < FIELD_LENGTH; index++)
+		{
+			fieldObjects[index].cameraMoved(shader, myCamera);
+		}
+		for (int index = 0; index < STREET_LENGTH; index++)
+		{
+			streetsObject[index].cameraMoved(shader, myCamera);
+		}
+		for (int index = 0; index < GATES_LENGTH; index++)
+		{
+			gatesObject[index].cameraMoved(shader, myCamera);
+		}
+		for (int index = 0; index < WALL_LENGTH; index++)
+		{
+			wallsObject[index].cameraMoved(shader, myCamera);
+		}
+		for (int index = 0; index < BUILDINGS_LENGTH; index++)
+		{
+			buildingsObject[index].cameraMoved(shader, myCamera);
+		}
 	}
 	
-	glm::mat4 ObjectManager::computeLightSpaceTrMatrix()
+	glm::mat4 ObjectManager::computeLightSpaceTrMatrix(gps::Camera myCamera)
 	{
 		const GLfloat near_plane = 1.0f, far_plane = 200.0f;
 		glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
-		glm::vec3 lightDirTr = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(lightDir, 1.0f));
-		glm::mat4 lightView = glm::lookAt(lightDirTr, myCamera.getCameraPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat3 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		glm::vec3 lightDirTr = glm::vec3(rotation * glm::vec4(lightDir, 1.0f));
+		glm::mat4 lightView = glm::lookAt(lightDirTr, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		return lightProjection * lightView;
 	}

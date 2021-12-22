@@ -1,12 +1,6 @@
 #define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
-#include <glm/glm.hpp> //core glm functionality
-#include <glm/gtc/matrix_transform.hpp> //glm extension for generating common transformation matrices
-#include <glm/gtc/matrix_inverse.hpp> //glm extension for computing inverse matrices
-#include <glm/gtc/type_ptr.hpp> //glm extension for accessing the internal data structure of glm types
-
+#include "Constants.hpp"
 #include "Window.h"
 #include "Shader.hpp"
 #include "Camera.hpp"
@@ -16,9 +10,6 @@
 #include "SkyBox.hpp"
 #include "ObjectManager.hpp"
 
-#include <iostream>
-
-#define TAU (M_PI * 2.0)
 // window
 gps::Window myWindow;
 float screenWidth;
@@ -28,14 +19,9 @@ float screenHeight;
 glm::mat4 model;
 glm::mat4 view;
 glm::mat4 projection;
-// light parameters
-glm::vec3 lightDir;
-glm::vec3 lightColor;
-
-gps::Model3D lightCube;
-GLint lightDirLoc;
 GLint lightColorLoc;
 
+std::vector<const GLchar*> faces;
 gps::SkyBox mySkyBox;
 gps::Shader skyboxShader;
 // camera
@@ -52,63 +38,25 @@ GLboolean pressedKeys[1024];
 
 // objects
 gps::DeltaTime deltaTime;
-gps::InGameObject walls[20];
-gps::InGameObject wallGate;
-//gps::InGameObject mainPlane; 
-#define STREET_LENGTH 20
-gps::InGameObject road[STREET_LENGTH];
-std::vector<const GLchar*> faces;
+
 gps::ObjectManager objectManager;
 
-GLenum glCheckError_(const char* file, int line)
-{
-    GLenum errorCode;
-    while ((errorCode = glGetError()) != GL_NO_ERROR) {
-        std::string error;
-        switch (errorCode) {
-        case GL_INVALID_ENUM:
-            error = "INVALID_ENUM";
-            break;
-        case GL_INVALID_VALUE:
-            error = "INVALID_VALUE";
-            break;
-        case GL_INVALID_OPERATION:
-            error = "INVALID_OPERATION";
-            break;
-        case GL_STACK_OVERFLOW:
-            error = "STACK_OVERFLOW";
-            break;
-        case GL_STACK_UNDERFLOW:
-            error = "STACK_UNDERFLOW";
-            break;
-        case GL_OUT_OF_MEMORY:
-            error = "OUT_OF_MEMORY";
-            break;
-        case GL_INVALID_FRAMEBUFFER_OPERATION:
-            error = "INVALID_FRAMEBUFFER_OPERATION";
-            break;
-        }
-        std::cout << error << " | " << file << " (" << line << ")" << std::endl;
-    }
-    return errorCode;
-}
-#define glCheckError() glCheckError_(__FILE__, __LINE__)
 void drawSkyBox()
 {
     skyboxShader.useShaderProgram();
     view = myCamera.getViewMatrix();
-    glUniformMatrix4fv(glGetUniformLocation(skyboxShader.shaderProgram, "view"), 1, GL_FALSE,
-        glm::value_ptr(view));
+    GLint viewLoc = glGetUniformLocation(skyboxShader.shaderProgram, "view");
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-    projection = glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 1000.0f);
-    glUniformMatrix4fv(glGetUniformLocation(skyboxShader.shaderProgram, "projection"), 1, GL_FALSE,
-        glm::value_ptr(projection));
+    projection = glm::perspective(glm::radians(45.0f), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
+    GLint projectionLoc = glGetUniformLocation(skyboxShader.shaderProgram, "projection");
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    mySkyBox.Draw(skyboxShader, view, projection);
 }
 void initSkyBoxShader()
 {
     mySkyBox.Load(faces);
     skyboxShader.loadShader("shaders/skyboxShader.vert", "shaders/skyboxShader.frag");
-    drawSkyBox();
 }
 
 void windowResizeCallback(GLFWwindow* window, int width, int height) {
@@ -117,13 +65,9 @@ void windowResizeCallback(GLFWwindow* window, int width, int height) {
 
     glfwGetFramebufferSize(window, &width, &height);
 
-    wallGate.getShader().useShaderProgram();
-    for (int index = 0; index < STREET_LENGTH; index++)
-    {
-        road[index].getShader().useShaderProgram();
-    }
-
-    initSkyBoxShader();
+    
+    objectManager.refreshContent(myCamera);
+    drawSkyBox();
 
     // set Viewport transform
     glViewport(0, 0, width, height);
@@ -177,11 +121,7 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
     myCamera.rotate(pitch, yaw);
 
 
-    for (int index = 0; index < STREET_LENGTH; index++)
-    {
-        road[index].cameraMoved(myCamera);
-    }
-    wallGate.cameraMoved(myCamera);
+    objectManager.refreshContent(myCamera);
     drawSkyBox();
 }
 
@@ -191,44 +131,29 @@ void processMovement() {
     float currentCameraSpeed = cameraSpeed;
     if (pressedKeys[GLFW_KEY_LEFT_SHIFT]) {
         currentCameraSpeed *= 4;
+
     }
     if (pressedKeys[GLFW_KEY_W]) {
-        myCamera.move(gps::MOVE_FORWARD, currentCameraSpeed * deltaTime.getTranslationSpeed());
-        wallGate.cameraMoved(myCamera);
-        for (int index = 0; index < STREET_LENGTH; index++)
-        {
-            road[index].cameraMoved(myCamera);
-        }
+        myCamera.move(MOVE_FORWARD, currentCameraSpeed * deltaTime.getTranslationSpeed());
+        objectManager.refreshContent(myCamera);
         drawSkyBox();
     }
 
     if (pressedKeys[GLFW_KEY_S]) {
-        myCamera.move(gps::MOVE_BACKWARD, currentCameraSpeed * deltaTime.getTranslationSpeed());
-        wallGate.cameraMoved(myCamera);
-        for (int index = 0; index < STREET_LENGTH; index++)
-        {
-            road[index].cameraMoved(myCamera);
-        }
+        myCamera.move(MOVE_BACKWARD, currentCameraSpeed * deltaTime.getTranslationSpeed());
+        objectManager.refreshContent(myCamera);
         drawSkyBox();
     }
 
     if (pressedKeys[GLFW_KEY_A]) {
-        myCamera.move(gps::MOVE_LEFT, currentCameraSpeed * deltaTime.getTranslationSpeed());
-        wallGate.cameraMoved(myCamera);
-        for (int index = 0; index < STREET_LENGTH; index++)
-        {
-            road[index].cameraMoved(myCamera);
-        }
+        myCamera.move(MOVE_LEFT, currentCameraSpeed * deltaTime.getTranslationSpeed());
+        objectManager.refreshContent(myCamera);
         drawSkyBox();
     }
 
     if (pressedKeys[GLFW_KEY_D]) {
-        myCamera.move(gps::MOVE_RIGHT, currentCameraSpeed * deltaTime.getTranslationSpeed());
-        wallGate.cameraMoved(myCamera);
-        for (int index = 0; index < STREET_LENGTH; index++)
-        {
-            road[index].cameraMoved(myCamera);
-        }
+        myCamera.move(MOVE_RIGHT, currentCameraSpeed * deltaTime.getTranslationSpeed());
+        objectManager.refreshContent(myCamera);
         drawSkyBox();
     }
 
@@ -239,6 +164,9 @@ void processMovement() {
 
     if (glfwGetKey(myWindow.getWindow(), GLFW_KEY_MINUS)) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    if (glfwGetKey(myWindow.getWindow(), GLFW_KEY_0)) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_DEPTH);
     }
 }
 
@@ -278,78 +206,69 @@ void initOpenGLState() {
 
 }
 
-void initModels() {
-    initSkybox();
-    for (int index = 0; index < STREET_LENGTH; index++)
-    {
-        road[index].initializeObject("models/road/road.obj");
-    }
-    wallGate.initializeObject("models/buildings/WallGate.obj");
-}
-
-void initObjects() {
-    wallGate.initializeShader(
-        "shaders/basic.vert",
-        "shaders/basic.frag");
-    wallGate.initializeUniforms(myCamera, myWindow);
-
-    for (int index = 0; index < STREET_LENGTH; index++)
-    {
-        road[index].initializeShader(
-            "shaders/basic.vert",
-            "shaders/basic.frag");
-        road[index].initializeUniforms(myCamera, myWindow);
-    }
-}
-
-void initUniforms() {    
-    wallGate.getShader().useShaderProgram();
-    //set the light direction (direction towards the light)
-    lightDir = glm::vec3(0.0f, 1.0f, 1.0f);
-    lightDirLoc = glGetUniformLocation(wallGate.getShader().shaderProgram, "lightDir");
-    // send light dir to shader
-    glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
-
-    //set light color
-    lightColor = glm::vec3(1.0f, 1.0f, 1.0f); //white light
-    lightColorLoc = glGetUniformLocation(wallGate.getShader().shaderProgram, "lightColor");
-    // send light color to shader
-    glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
-
-    for (int index = 0; index < STREET_LENGTH; index++)
-    {
-        road[index].getShader().useShaderProgram();
-        //set the light direction (direction towards the light)
-        lightDir = glm::vec3(0.0f, 1.0f, 1.0f);
-        lightDirLoc = glGetUniformLocation(road[index].getShader().shaderProgram, "lightDir");
-        // send light dir to shader
-        glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
-
-        //set light color
-        lightColor = glm::vec3(1.0f, 1.0f, 1.0f); //white light
-        lightColorLoc = glGetUniformLocation(road[index].getShader().shaderProgram, "lightColor");
-        // send light color to shader
-        glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
-    }
-}
-
-void renderScene() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // select active shader program
-    wallGate.renderObject();
-    for (int index = 0; index < STREET_LENGTH; index++)
-    {
-        road[index].renderObject();
-    }
-
-    mySkyBox.Draw(skyboxShader, view, projection);
-
-}
-
 void cleanup() {
     myWindow.Delete();
     //cleanup code for your own data
+}
+
+void initialPositionOfObjects()
+{
+    for (int index = 0; index < GATES_LENGTH; index++)
+    {
+        objectManager.gatesObject[index].translateObject(objectManager.shader, 3, MOVE_DOWN, 1);
+    }
+    objectManager.gatesObject[1].translateObject(objectManager.shader, 160, MOVE_BACKWARD, 1);
+    objectManager.gatesObject[2].translateObject(objectManager.shader, 80, MOVE_BACKWARD, 1);
+    objectManager.gatesObject[2].rotateObject(objectManager.shader, glm::vec3(0.0f, 90.0f, 0.0f));
+    objectManager.gatesObject[2].translateObject(objectManager.shader, 160, MOVE_RIGHT, 1);
+    objectManager.gatesObject[3].translateObject(objectManager.shader, 80, MOVE_BACKWARD, 1);
+    objectManager.gatesObject[3].rotateObject(objectManager.shader, glm::vec3(0.0f, -90.0f, 0.0f));
+    objectManager.gatesObject[3].translateObject(objectManager.shader, 160, MOVE_LEFT, 1);
+
+    for (int index = 0; index < STREET_LENGTH / 4; index++)
+    {
+        objectManager.streetsObject[index].translateObject(objectManager.shader, 3, MOVE_DOWN, 1);
+        objectManager.streetsObject[index].scaleObject(objectManager.shader, glm::vec3(2));
+        objectManager.streetsObject[index].translateObject(objectManager.shader, index * 12 * 2, MOVE_FORWARD, 1);
+    }
+    for (int index = STREET_LENGTH / 4; index < STREET_LENGTH/2; index++)
+    {
+        objectManager.streetsObject[index].translateObject(objectManager.shader, 3, MOVE_DOWN, 1);
+        objectManager.streetsObject[index].scaleObject(objectManager.shader, glm::vec3(2));
+        objectManager.streetsObject[index].translateObject(objectManager.shader, (index - STREET_LENGTH / 4 + 1) * 12 * 2, MOVE_BACKWARD, 1);
+    }
+    for (int index = STREET_LENGTH / 2; index < 3*STREET_LENGTH / 4; index++)
+    {
+        objectManager.streetsObject[index].translateObject(objectManager.shader, 3, MOVE_DOWN, 1);
+        objectManager.streetsObject[index].translateObject(objectManager.shader, 80, MOVE_BACKWARD, 1);
+        objectManager.streetsObject[index].scaleObject(objectManager.shader, glm::vec3(2));
+        objectManager.streetsObject[index].rotateObject(objectManager.shader, glm::vec3(0.0f,90.0f,0.0f));
+        objectManager.streetsObject[index].translateObject(objectManager.shader, (index - STREET_LENGTH / 2)* 12 * 2, MOVE_RIGHT, 1);
+    }
+    for (int index = 3 * STREET_LENGTH / 4; index < STREET_LENGTH; index++)
+    {
+        objectManager.streetsObject[index].translateObject(objectManager.shader, 3, MOVE_DOWN, 1);
+        objectManager.streetsObject[index].translateObject(objectManager.shader, 80, MOVE_BACKWARD, 1);
+        objectManager.streetsObject[index].scaleObject(objectManager.shader, glm::vec3(2));
+        objectManager.streetsObject[index].rotateObject(objectManager.shader, glm::vec3(0.0f, 90.0f, 0.0f));
+        objectManager.streetsObject[index].translateObject(objectManager.shader, (index - 3 * STREET_LENGTH / 4 + 1) * 12 * 2, MOVE_LEFT, 1);
+    }
+
+
+    for (int index = 0; index < FIELD_LENGTH; index++)
+    {
+        objectManager.fieldObjects[index].translateObject(objectManager.shader, 3.05, MOVE_DOWN, 1);
+        objectManager.fieldObjects[index].scaleObject(objectManager.shader, glm::vec3(8.0f, 8.0f, 8.0f));
+    }
+    int index = 0;
+    for (int indexc = 0; indexc < 10; indexc++)
+    {
+        for (int indexr = 0; indexr < 10; indexr++)
+        {
+            objectManager.fieldObjects[index].translateObject(objectManager.shader, glm::vec3((float)(5 * 12 * 4 - indexc * 12 * 4), objectManager.fieldObjects[index].getLocation().y, (float)(5 * 12 * 4 - indexr * 12 * 4)));
+            index++;
+        }
+    }
 }
 
 int main(int argc, const char* argv[]) {
@@ -363,38 +282,45 @@ int main(int argc, const char* argv[]) {
     }
 
     initOpenGLState();
-    initModels();
-    initObjects();
-    initUniforms();
-    setWindowCallbacks();
 
+    objectManager.initFBO();
+    objectManager.initModels();
+    objectManager.initShaders();
+    objectManager.initUniforms(myCamera,myWindow);
+    initialPositionOfObjects();
+
+    initSkybox();
     initSkyBoxShader();
 
-    for (int index = 0; index < STREET_LENGTH/2; index++)
-    {
-        road[index].translateObject(1, road[index].MOVE_DOWN, 1);
-        road[index].translateObject(index*12, road[index].MOVE_BACKWARD, 1);
-    }
-    for (int index = STREET_LENGTH / 2; index < STREET_LENGTH; index++)
-    {
-        road[index].translateObject(1, road[index].MOVE_DOWN, 1);
-        road[index].translateObject((index-STREET_LENGTH/2+1) * 12, road[index].MOVE_FORWARD, 1);
-    }
-    glCheckError();
-
+    setWindowCallbacks();
+    int frames = 0;
+    float toASecond = 1.0f;
+    
     deltaTime.initializeDeltaTime();
     // application loop
     while (!glfwWindowShouldClose(myWindow.getWindow())) {
         deltaTime.calculateDeltaTime();
 
+        toASecond -= deltaTime.getDeltaTime();
+        if (toASecond < 0.0f)
+        {
+            printf("FPS: %d\n", frames);
+            toASecond = 1.0f;
+            frames = 0;
+        }
+        else
+        {
+            frames++;
+        }
+
         processMovement();
-        renderScene();
-        glCheckError();
+        
+        objectManager.renderScene(myCamera, myWindow);
+        drawSkyBox();
 
         glfwPollEvents();
         glfwSwapBuffers(myWindow.getWindow());
-
-        glCheckError();
+        
     }
 
     cleanup();

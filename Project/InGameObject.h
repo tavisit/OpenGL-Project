@@ -11,6 +11,7 @@
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Model3D.hpp"
+#include "Constants.hpp"
 
 #include <iostream>
 #include <string>
@@ -20,36 +21,34 @@ namespace gps {
     class InGameObject
     {
     public:
-        enum MOVE_DIRECTION { MOVE_FORWARD, MOVE_BACKWARD, MOVE_RIGHT, MOVE_LEFT,MOVE_UP,MOVE_DOWN };
-
-        void initializeShader(const char* shaderVertPath, const char* shaderFragPath);
         void initializeObject(gps::Model3D gameObject);
-        void initializeObject(const char* objectPath);
-        void initializeUniforms(gps::Camera myCamera, gps::Window myWindow);
-        void translateObject(GLfloat distance, MOVE_DIRECTION moveDirection, float speed);
-        void rotateObject(glm::vec3 rotationAngles);
-        void rotateObjectWithAngle(glm::vec3 rotationAngles);
-        void scaleObject(glm::vec3 scale);
-        void renderObject();
+        void initializeObject(std::string objectPath, std::string objectFile);
+        void initializeUniforms(gps::Shader shader, gps::Camera myCamera, gps::Window myWindow);
+        void translateObject(gps::Shader shader, GLfloat distance, MOVE_DIRECTION moveDirection, float speed);
+        void translateObject(gps::Shader shader, glm::vec3 absolutePosition);
+        void rotateObject(gps::Shader shader,glm::vec3 rotationAngles);
+        void rotateObjectWithAngle(gps::Shader shader, glm::vec3 rotationAngles);
+        void scaleObject(gps::Shader shader, glm::vec3 scale);
+        void renderObject(gps::Shader shader);
         void renderShadow(gps::Shader shaderShadow);
-        void cameraMoved(gps::Camera myCamera);
-
-
-        gps::Shader getShader();
-        void setShader(gps::Shader shader);
+        void cameraMoved(gps::Shader shader, gps::Camera myCamera);
 
         glm::mat4 getModel();
         glm::mat4 getView();
         glm::mat4 getProjection();
+        glm::vec3 getLocation();
+        glm::vec3 getRotation();
+        glm::vec3 getScale();
         
     private:
 
         // methods
-        void objectTransformed();
+        void objectTransformed(gps::Shader shader);
 
         // vectors
         glm::vec3 location;
         glm::vec3 rotation;
+        glm::vec3 scale;
 
         // matrices
         glm::mat4 model;
@@ -63,9 +62,6 @@ namespace gps {
         GLint projectionLoc;
         glm::mat3 normalMatrix;
         GLint normalMatrixLoc;
-
-        // shader
-        gps::Shader shader;
         
         // object
         gps::Model3D gameObject;

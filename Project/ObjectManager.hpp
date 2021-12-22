@@ -13,49 +13,50 @@
 #include "Camera.hpp"
 #include "Model3D.hpp"
 #include "InGameObject.h"
+#include "Constants.hpp"
 
 #include <iostream>
 #include <string>
 
-#define STREET_LENGTH 20
-#define WALL_LENGTH 20
-#define GATES_LENGTH 4
-#define BUILDINGS_LENGTH 20
-#define LIGHTS_LENGTH 20
 
 namespace gps {
 
     class ObjectManager
     {
     public:
-        ObjectManager();
-        ObjectManager(gps::Camera myCamera);
+
+        #define STREET_LENGTH 40
+        #define WALL_LENGTH 20
+        #define GATES_LENGTH 4
+        #define BUILDINGS_LENGTH 20
+        #define GRASS_LENGTH 20
+        #define FIELD_LENGTH 200
+
+
         void initFBO();
-        void initializeShaders();
-        void renderObjects();
         void initModels();
         void initShaders();
         void initUniforms(gps::Camera myCamera, gps::Window myWindow);
-        void renderScene(gps::Window myWindow);
+        void renderScene(gps::Camera myCamera,gps::Window myWindow);
+        void refreshContent(gps::Camera myCamera);
 
-        void setCamera(gps::Camera myCamera);
-    private:
-
-        glm::mat4 computeLightSpaceTrMatrix();
-        const unsigned int SHADOW_WIDTH = 4096;
-        const unsigned int SHADOW_HEIGHT = 2048;
-
-        // object
+        // objects
         gps::InGameObject streetsObject[STREET_LENGTH];
         gps::InGameObject wallsObject[WALL_LENGTH];
         gps::InGameObject gatesObject[GATES_LENGTH];
         gps::InGameObject buildingsObject[BUILDINGS_LENGTH];
-        gps::InGameObject lights[LIGHTS_LENGTH];
-
+        gps::InGameObject grassObjects[GRASS_LENGTH];
+        gps::InGameObject fieldObjects[FIELD_LENGTH];
         // shaders
         gps::Shader shader;
-        gps::Shader lightShader;
         gps::Shader depthMapShader;
+    private:
+
+        glm::mat4 computeLightSpaceTrMatrix(gps::Camera myCamera);
+        const unsigned int SHADOW_WIDTH = 4096;
+        const unsigned int SHADOW_HEIGHT = 2048;
+
+
 
         // matrices
         glm::mat4 model;
@@ -81,21 +82,6 @@ namespace gps {
         GLuint shadowMapFBO;
         GLuint depthMapTexture;
 
-
-        // spotlight
-        float spotlight1;
-        float spotlight2;
-        glm::vec3 spotLightDirection;
-        glm::vec3 spotLightPosition;
-
-
-        // point lights
-        glm::vec3 lightPos1;
-        GLuint lightPos1Loc;
-        glm::vec3 lightPos2;
-        GLuint lightPos2Loc;
-
-        gps::Camera myCamera;
 
     };
 }

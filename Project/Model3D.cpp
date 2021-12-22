@@ -23,7 +23,7 @@ namespace gps {
 	// Does the parsing of the .obj file and fills in the data structure
 	void Model3D::ReadOBJ(std::string fileName, std::string basePath){
 
-        std::cout << "Loading : " << fileName << std::endl;
+        //std::cout << "Loading : " << fileName << std::endl;
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
@@ -40,8 +40,8 @@ namespace gps {
 			exit(1);
 		}
 
-		std::cout << "# of shapes    : " << shapes.size() << std::endl;
-		std::cout << "# of materials : " << materials.size() << std::endl;
+		//std::cout << "# of shapes    : " << shapes.size() << std::endl;
+		//std::cout << "# of materials : " << materials.size() << std::endl;
 
 		// Loop over shapes
 		for (size_t s = 0; s < shapes.size(); s++) {
