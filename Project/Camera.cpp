@@ -1,12 +1,9 @@
 #include "Camera.hpp"
 
 namespace gps {
-    Camera::Camera()
-    {
-    }
+
     //Camera constructor
     Camera::Camera(glm::vec3 cameraPosition, glm::vec3 cameraTarget, glm::vec3 cameraUp) {
-
         this->cameraPosition = cameraPosition;
         this->cameraTarget = cameraTarget;
         this->cameraFrontDirection = glm::normalize(cameraTarget - cameraPosition);
@@ -46,8 +43,6 @@ namespace gps {
         cameraFrontDirection.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
         cameraFrontDirection.y = sin(glm::radians(pitch));
         cameraFrontDirection.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        
-
 
         this->cameraRightDirection = glm::normalize(glm::cross(cameraFrontDirection, this->worldUp));
         this->cameraUpDirection = glm::normalize(glm::cross(cameraRightDirection, this->cameraFrontDirection));
@@ -55,6 +50,10 @@ namespace gps {
     }
     glm::vec3 Camera::getCameraPosition()
     {
-        return cameraPosition;
+        return this->cameraPosition;
+    }
+    glm::vec3 Camera::getCameraTarget()
+    {
+        return this->cameraTarget;
     }
 }

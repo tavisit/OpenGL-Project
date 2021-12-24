@@ -1,0 +1,51 @@
+#ifndef InGameObject_hpp
+#define InGameObject_hpp
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <glm/glm.hpp> //core glm functionality
+#include <glm/gtc/matrix_transform.hpp> //glm extension for generating common transformation matrices
+#include <glm/gtc/matrix_inverse.hpp> //glm extension for computing inverse matrices
+#include <glm/gtc/type_ptr.hpp> //glm extension for accessing the internal data structure of glm types
+
+#include "Constants.h"
+#include "Model3D.hpp"
+#include "Shader.hpp"
+#include <vector>
+#include <iostream>
+#include <string>
+
+namespace gps {
+    class InGameObject
+    {
+    public:
+        InGameObject();
+
+        glm::vec3 getLocation();
+        glm::vec3 getRotation();
+        glm::vec3 getScale();
+
+        glm::mat4 getModel();
+        void objectChanged();
+
+        void translateDistance(GLfloat distance, MOVE_DIRECTION moveDirection, GLfloat speed = 1.0f);
+        void rotationDistance(GLfloat angle, ROTATION_DIRECTION rotationDirection, GLfloat speed = 1.0f);
+        void scaleDistance(GLfloat scale);
+
+        void translateAbsolute(glm::vec3 translation, GLfloat speed = 1.0f);
+        void rotationAbsolute(glm::vec3 rotation, GLfloat speed = 1.0f);
+        void scaleAbsolute(glm::vec3 scale);
+
+        void drawObject(GLuint normalMatrixLoc, glm::mat4 view, gps::Model3D* model3D, gps::Shader* shader, bool calculateNormals);
+
+    private:
+        glm::mat4 model;
+
+        glm::vec3 location;
+        glm::vec3 rotation;
+        glm::vec3 scale;
+    };
+}
+
+
+#endif // !InGameObject_hpp

@@ -18,6 +18,7 @@ namespace gps {
 
         // for multisampling/antialising
         glfwWindowHint(GLFW_SAMPLES, 4);
+
         this->window = glfwCreateWindow(width, height, title, NULL, NULL);
         if (!this->window) {
             throw std::runtime_error("Could not create GLFW3 window!");

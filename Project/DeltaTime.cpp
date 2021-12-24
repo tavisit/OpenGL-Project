@@ -1,28 +1,49 @@
 #include "DeltaTime.h"
 
-void gps::DeltaTime::initializeDeltaTime()
-{
-    lastFrame = glfwGetTime();
-}
+namespace gps {
+    void DeltaTime::initializeDeltaTime()
+    {
+        lastFrame = glfwGetTime();
+    }
 
-void gps::DeltaTime::calculateDeltaTime()
-{
-    float currentFrame = glfwGetTime();
-    deltaTime = currentFrame - lastFrame;
-    lastFrame = currentFrame;
-}
+    void DeltaTime::calculateDeltaTime(bool printFps)
+    {
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
 
-float gps::DeltaTime::getDeltaTime()
-{
-    return deltaTime;
-}
+        timePassed -= deltaTime;
+        if (timePassed < 0.0f)
+        {
+            timePassed = 1.0f;
+            FPS = framesPassed;
+            framesPassed = 0;
+            if (printFps)
+            {
+                printf("FPS %d\n", FPS);
+            }
+        }
+        framesPassed++;
+    }
 
-float gps::DeltaTime::getTranslationSpeed()
-{
-    return translationConstant*deltaTime;
-}
+    float DeltaTime::getDeltaTime()
+    {
+        return deltaTime;
+    }
 
-float gps::DeltaTime::getRotationSpeed()
-{
-    return rotationConstant * deltaTime;
+    float DeltaTime::getTranslationSpeed()
+    {
+        return translationConstant * deltaTime;
+    }
+
+    float DeltaTime::getRotationSpeed()
+    {
+        return rotationConstant * deltaTime;
+    }
+
+    int DeltaTime::getFps()
+    {
+        return FPS;
+    }
+
 }

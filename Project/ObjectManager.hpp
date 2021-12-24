@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef ObjectManager_hpp
+#define ObjectManager_hpp
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -8,80 +8,84 @@
 #include <glm/gtc/matrix_inverse.hpp> //glm extension for computing inverse matrices
 #include <glm/gtc/type_ptr.hpp> //glm extension for accessing the internal data structure of glm types
 
+#include "Constants.h"
 #include "Window.h"
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Model3D.hpp"
-#include "InGameObject.h"
-#include "Constants.hpp"
-
-#include <iostream>
-#include <string>
+#include "SkyBox.hpp"
+#include "DeltaTime.h"
+#include "InGameObject.hpp"
 
 
 namespace gps {
-
     class ObjectManager
     {
     public:
+        void renderScene(gps::Window myWindow, gps::Camera myCamera, DeltaTime deltaTime);
+        void initObjectManager(gps::Window myWindow);
+        void initObjectsModels(gps::Window myWindow, gps::Camera myCamera, DeltaTime deltaTime);
+        void resizeWindow(gps::Window myWindow);
 
-        #define STREET_LENGTH 40
-        #define WALL_LENGTH 20
-        #define GATES_LENGTH 4
-        #define BUILDINGS_LENGTH 20
-        #define GRASS_LENGTH 20
-        #define FIELD_LENGTH 200
 
+
+        glm::mat4 getModel();
+        glm::mat4 getView(gps::Camera myCamera);
+        glm::mat4 getProjection(gps::Window myWindow);
+    private:
 
         void initFBO();
         void initModels();
         void initShaders();
-        void initUniforms(gps::Camera myCamera, gps::Window myWindow);
-        void renderScene(gps::Camera myCamera,gps::Window myWindow);
-        void refreshContent(gps::Camera myCamera);
+        void initUniforms(gps::Window myWindow);
+        glm::mat4 computeLightSpaceTrMatrix(gps::Window myWindow, gps::Camera myCamera);
 
-        // objects
-        gps::InGameObject streetsObject[STREET_LENGTH];
-        gps::InGameObject wallsObject[WALL_LENGTH];
-        gps::InGameObject gatesObject[GATES_LENGTH];
-        gps::InGameObject buildingsObject[BUILDINGS_LENGTH];
-        gps::InGameObject grassObjects[GRASS_LENGTH];
-        gps::InGameObject fieldObjects[FIELD_LENGTH];
-        // shaders
-        gps::Shader shader;
+        gps::Shader myCustomShader;
+        gps::Shader lightShader;
         gps::Shader depthMapShader;
-    private:
 
-        glm::mat4 computeLightSpaceTrMatrix(gps::Camera myCamera);
-        const unsigned int SHADOW_WIDTH = 4096;
-        const unsigned int SHADOW_HEIGHT = 2048;
+        GLuint shadowMapFBO;
+        GLuint depthMapTexture;
 
-
-
-        // matrices
         glm::mat4 model;
+        GLuint modelLoc;
         glm::mat4 view;
+        GLuint viewLoc;
         glm::mat4 projection;
         glm::mat3 normalMatrix;
         glm::mat3 lightDirMatrix;
 
-        // shader uniforms
-        GLuint modelLoc;
-        GLuint viewLoc;
-        GLuint normalMatrixLoc;
-        GLuint lightDirMatrixLoc;
-        GLuint projectionLoc;
-
-        // light
         glm::vec3 lightDir;
         GLuint lightDirLoc;
         glm::vec3 lightColor;
         GLuint lightColorLoc;
 
-        //shadows
-        GLuint shadowMapFBO;
-        GLuint depthMapTexture;
+        const unsigned int SHADOW_WIDTH = 1024 * 16;
+        const unsigned int SHADOW_HEIGHT = 1024 * 16;
+
+        #define WALLS_NUMBER 20
+        #define GATES_NUMBER 4
+        #define STREETS_NUMBER 40
+        #define GRASS_NUMBER 220
+        #define BUILDINGS_NUMBER 20
+
+        gps::Model3D lightCube;
+        gps::Model3D grass;
+        gps::Model3D wall;
+        gps::Model3D wallGate;
+        gps::Model3D street;
+        gps::Model3D building;
+
+        GLfloat lightAngle;
+
+        std::vector<gps::InGameObject> wallObjects;
+        std::vector<gps::InGameObject> gatesObjects;
+        std::vector<gps::InGameObject> streetsObjects;
+        std::vector<gps::InGameObject> grassObjects;
+        std::vector<gps::InGameObject> buildingsObjects;
 
 
     };
 }
+
+#endif // !ObjectManager_hpp

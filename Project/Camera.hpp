@@ -3,16 +3,15 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
-#include "Constants.hpp"
+#include "Constants.h"
 
 #include <string>
 
 namespace gps {
-       
+        
     class Camera
     {
     public:
-        Camera();
         //Camera constructor
         Camera(glm::vec3 cameraPosition, glm::vec3 cameraTarget, glm::vec3 cameraUp);
         //return the view matrix, using the glm::lookAt() function
@@ -25,6 +24,7 @@ namespace gps {
         void rotate(float pitch, float yaw);
 
         glm::vec3 getCameraPosition();
+        glm::vec3 getCameraTarget();
         
     private:
         glm::vec3 cameraPosition;

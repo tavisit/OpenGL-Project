@@ -1,0 +1,6 @@
+#pragma once
+namespace gps {
+
+    enum MOVE_DIRECTION { MOVE_FORWARD, MOVE_BACKWARD, MOVE_RIGHT, MOVE_LEFT, MOVE_UP, MOVE_DOWN };
+    enum ROTATION_DIRECTION { X_AXIS, Y_AXIS, Z_AXIS};
+}
