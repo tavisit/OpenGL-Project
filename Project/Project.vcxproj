@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Colors.cpp" />
     <ClCompile Include="DeltaTime.cpp" />
     <ClCompile Include="InGameObject.cpp" />
     <ClCompile Include="main.cpp" />
@@ -34,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
+    <ClInclude Include="Colors.hpp" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="DeltaTime.h" />
     <ClInclude Include="InGameObject.hpp" />
@@ -47,8 +49,6 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\lightCube.frag" />
-    <None Include="shaders\lightCube.vert" />
     <None Include="shaders\shaderStart.frag" />
     <None Include="shaders\shaderStart.vert" />
     <None Include="shaders\simpleDepthMap.frag" />

@@ -25,6 +25,9 @@ namespace gps {
 
         glm::vec3 getCameraPosition();
         glm::vec3 getCameraTarget();
+        glm::vec3 getCameraFrontDirection();
+        void setWalkingVar(bool walkingVar);
+        bool getWalkingVar();
         
     private:
         glm::vec3 cameraPosition;
@@ -33,6 +36,9 @@ namespace gps {
         glm::vec3 cameraRightDirection;
         glm::vec3 cameraUpDirection;
         glm::vec3 worldUp;
+
+        glm::vec3 lastWalkingPosition;
+        bool walking;
     };
     
 }

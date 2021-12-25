@@ -51,6 +51,9 @@
     <ClCompile Include="ObjectManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Colors.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp">
@@ -89,12 +92,13 @@
     <ClInclude Include="ObjectManager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Colors.hpp">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shaderStart.frag" />
     <None Include="shaders\shaderStart.vert" />
-    <None Include="shaders\lightCube.frag" />
-    <None Include="shaders\lightCube.vert" />
     <None Include="shaders\simpleDepthMap.frag" />
     <None Include="shaders\simpleDepthMap.vert" />
     <None Include="shaders\skyboxShader.frag" />

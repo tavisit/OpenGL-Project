@@ -7,6 +7,8 @@
 #include <glm/gtc/matrix_transform.hpp> //glm extension for generating common transformation matrices
 #include <glm/gtc/matrix_inverse.hpp> //glm extension for computing inverse matrices
 #include <glm/gtc/type_ptr.hpp> //glm extension for accessing the internal data structure of glm types
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
 
 #include "Constants.h"
 #include "Window.h"
@@ -16,6 +18,7 @@
 #include "SkyBox.hpp"
 #include "DeltaTime.h"
 #include "InGameObject.hpp"
+#include "Colors.hpp"
 
 
 namespace gps {
@@ -23,11 +26,8 @@ namespace gps {
     {
     public:
         void renderScene(gps::Window myWindow, gps::Camera myCamera, DeltaTime deltaTime);
-        void initObjectManager(gps::Window myWindow);
-        void initObjectsModels(gps::Window myWindow, gps::Camera myCamera, DeltaTime deltaTime);
+        void initObjectManager(gps::Window myWindow, gps::Camera myCamera);
         void resizeWindow(gps::Window myWindow);
-
-
 
         glm::mat4 getModel();
         glm::mat4 getView(gps::Camera myCamera);
@@ -38,10 +38,11 @@ namespace gps {
         void initModels();
         void initShaders();
         void initUniforms(gps::Window myWindow);
+        void initObjectsModels(gps::Window myWindow, gps::Camera myCamera);
         glm::mat4 computeLightSpaceTrMatrix(gps::Window myWindow, gps::Camera myCamera);
+        void changeDynamicComponents();
 
-        gps::Shader myCustomShader;
-        gps::Shader lightShader;
+        gps::Shader mainShader;
         gps::Shader depthMapShader;
 
         GLuint shadowMapFBO;
@@ -60,21 +61,30 @@ namespace gps {
         glm::vec3 lightColor;
         GLuint lightColorLoc;
 
+        // point lights
+        #define LIGHT_MAX 2
+        glm::vec3 pointLight[LIGHT_MAX];
+        glm::vec3 pointLightColor[LIGHT_MAX];
+        float pointLightsIntensity[LIGHT_MAX];
+        GLuint pointLightLoc;
+        GLuint pointLightColorLoc;
+        GLuint pointLightIntensityLoc;
+
         const unsigned int SHADOW_WIDTH = 1024 * 16;
         const unsigned int SHADOW_HEIGHT = 1024 * 16;
 
-        #define WALLS_NUMBER 20
+        #define WALLS_NUMBER 12
         #define GATES_NUMBER 4
         #define STREETS_NUMBER 40
         #define GRASS_NUMBER 220
         #define BUILDINGS_NUMBER 20
 
-        gps::Model3D lightCube;
         gps::Model3D grass;
         gps::Model3D wall;
         gps::Model3D wallGate;
         gps::Model3D street;
         gps::Model3D building;
+        gps::Model3D waterFountain;
 
         GLfloat lightAngle;
 
@@ -83,7 +93,11 @@ namespace gps {
         std::vector<gps::InGameObject> streetsObjects;
         std::vector<gps::InGameObject> grassObjects;
         std::vector<gps::InGameObject> buildingsObjects;
+        gps::InGameObject waterFountainObject;
 
+        Colors colorParser;
+
+        float pointLightIntensityChanger;
 
     };
 }

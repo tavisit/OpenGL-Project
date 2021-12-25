@@ -20,7 +20,7 @@ void main()
 {
 	//compute eye space coordinates
 	fragPosEye = view * model * vec4(vPosition, 1.0f);
-	normal = vNormal;
+	normal = transpose(inverse(mat3(model))) * vNormal ;
 	fragPos = vec3(model* vec4(vPosition,1.0f));
 	fragTexCoords = vTexCoords;
 	fragPosLightSpace = lightSpaceTrMatrix * model * vec4(vPosition, 1.0f);

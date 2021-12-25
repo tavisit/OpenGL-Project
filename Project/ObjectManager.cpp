@@ -35,6 +35,8 @@ GLenum glCheckError_(const char* file, int line)
 namespace gps {
     void ObjectManager::renderScene(gps::Window myWindow, gps::Camera myCamera, DeltaTime deltaTime)
     {
+        changeDynamicComponents();
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         depthMapShader.useShaderProgram();
 
@@ -48,94 +50,138 @@ namespace gps {
         glClear(GL_DEPTH_BUFFER_BIT);
 
         glCheckError();
+        waterFountainObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterFountain, &depthMapShader, false);
         for (int index = 0; index < GATES_NUMBER; index++)
         {
-            gatesObjects[index].drawObject(glGetUniformLocation(myCustomShader.shaderProgram, "normalMatrix"), view, &wallGate, &depthMapShader, false);
-            glCheckError();
+            gatesObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wallGate, &depthMapShader, false);
         }
-        glCheckError();
+        for (int index = 0; index < WALLS_NUMBER; index++)
+        {
+            wallObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wall, &depthMapShader, false);
+        }
         for (int index = 0; index < GRASS_NUMBER; index++)
         {
-            grassObjects[index].drawObject(glGetUniformLocation(myCustomShader.shaderProgram, "normalMatrix"), view, &grass, &depthMapShader, false);
+            grassObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &grass, &depthMapShader, false);
         }
         for (int index = 0; index < STREETS_NUMBER; index++)
         {
-            streetsObjects[index].drawObject(glGetUniformLocation(myCustomShader.shaderProgram, "normalMatrix"), view, &street, &depthMapShader, false);
+            streetsObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &street, &depthMapShader, false);
         }
       
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        myCustomShader.useShaderProgram();
+        mainShader.useShaderProgram();
 
         // send lightSpace matrix to shader
-        glUniformMatrix4fv(glGetUniformLocation(myCustomShader.shaderProgram, "lightSpaceTrMatrix"), 1, GL_FALSE, glm::value_ptr(computeLightSpaceTrMatrix(myWindow, myCamera)));
+        glUniformMatrix4fv(glGetUniformLocation(mainShader.shaderProgram, "lightSpaceTrMatrix"), 1, GL_FALSE, glm::value_ptr(computeLightSpaceTrMatrix(myWindow, myCamera)));
 
         // send view matrix to shader
         view = myCamera.getViewMatrix();
 
-        glUniformMatrix4fv(glGetUniformLocation(myCustomShader.shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(mainShader.shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
         // compute light direction transformation matrix
         lightDirMatrix = glm::mat3(glm::inverseTranspose(view));
         // send lightDir matrix data to shader
-        glUniformMatrix3fv(glGetUniformLocation(myCustomShader.shaderProgram, "lightDirMatrix"), 1, GL_FALSE, glm::value_ptr(lightDirMatrix));
+        glUniformMatrix3fv(glGetUniformLocation(mainShader.shaderProgram, "lightDirMatrix"), 1, GL_FALSE, glm::value_ptr(lightDirMatrix));
 
         glViewport(0, 0, myWindow.getWindowDimensions().width, myWindow.getWindowDimensions().height);
-        myCustomShader.useShaderProgram();
+        mainShader.useShaderProgram();
 
         // bind the depth map
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, depthMapTexture);
-        glUniform1i(glGetUniformLocation(myCustomShader.shaderProgram, "shadowMap"), 3);
+        glUniform1i(glGetUniformLocation(mainShader.shaderProgram, "shadowMap"), 3);
         glCheckError();
 
+        waterFountainObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterFountain, &mainShader, true);
         for (int index = 0; index < GATES_NUMBER; index++)
         {
-            gatesObjects[index].drawObject(glGetUniformLocation(myCustomShader.shaderProgram, "normalMatrix"), view, &wallGate, &myCustomShader, true);
+            gatesObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wallGate, &mainShader, true);
+        }
+        for (int index = 0; index < WALLS_NUMBER; index++)
+        {
+            wallObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wall, &mainShader, true);
         }
         glCheckError();
         for (int index = 0; index < GRASS_NUMBER; index++)
         {
-            grassObjects[index].drawObject(glGetUniformLocation(myCustomShader.shaderProgram, "normalMatrix"), view, &grass, &myCustomShader, true);
+            grassObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &grass, &mainShader, true);
         }
         for (int index = 0; index < STREETS_NUMBER; index++)
         {
-            streetsObjects[index].drawObject(glGetUniformLocation(myCustomShader.shaderProgram, "normalMatrix"), view, &street, &myCustomShader, true);
+            streetsObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &street, &mainShader, true);
         }
 
-        lightColor = glm::vec3(1.0f, 1.0f, 1.0f); //white light
-        lightColorLoc = glGetUniformLocation(myCustomShader.shaderProgram, "lightColor");
-        glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
-        lightShader.useShaderProgram();
-        glUniformMatrix4fv(glGetUniformLocation(lightShader.shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
-        model = glm::rotate(glm::mat4(1.0f), glm::radians(lightAngle), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::translate(model, lightDir);
-        model = glm::translate(model, myCamera.getCameraPosition());
-        glUniformMatrix4fv(glGetUniformLocation(lightShader.shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-        lightCube.Draw(lightShader);
+        pointLightIntensityLoc = glGetUniformLocation(mainShader.shaderProgram, "lightIntensities");
+        glUniform1fv(pointLightIntensityLoc, LIGHT_MAX, pointLightsIntensity);
+        pointLightLoc = glGetUniformLocation(mainShader.shaderProgram, "lightsPos");
+        glUniform3fv(pointLightLoc, LIGHT_MAX, glm::value_ptr(pointLight[0]));
+        pointLightColorLoc = glGetUniformLocation(mainShader.shaderProgram, "lightsColors");
+        glUniform3fv(pointLightColorLoc, 1, glm::value_ptr(pointLightColor[0]));
     }
-    void ObjectManager::initObjectManager(gps::Window myWindow)
+    void ObjectManager::initObjectManager(gps::Window myWindow, gps::Camera myCamera)
     {
-        initFBO();
+        srand(time(NULL));
         initModels();
+        initObjectsModels(myWindow, myCamera);
+        initFBO();
         initShaders();
         initUniforms(myWindow);
     }
-    void ObjectManager::initObjectsModels(gps::Window myWindow, gps::Camera myCamera, DeltaTime deltaTime)
+    void ObjectManager::initObjectsModels(gps::Window myWindow, gps::Camera myCamera)
     {
         lightAngle = 20.0f;
         for (int index = 0; index < GATES_NUMBER; index++)
         {
             gatesObjects[index].translateDistance(3, gps::MOVE_DOWN, 1);
+            gatesObjects[index].scaleDistance(1.20f);
         }
         gatesObjects[1].translateDistance(160, gps::MOVE_BACKWARD, 1);
         gatesObjects[2].translateDistance( 80, gps::MOVE_BACKWARD, 1);
         gatesObjects[2].rotationAbsolute( glm::vec3(0.0f, 90.0f, 0.0f));
         gatesObjects[2].translateDistance( 160, gps::MOVE_RIGHT, 1);
         gatesObjects[3].translateDistance( 80, gps::MOVE_BACKWARD, 1);
-        gatesObjects[3].rotationAbsolute( glm::vec3(0.0f, -90.0f, 0.0f));
+        gatesObjects[3].rotationAbsolute( glm::vec3(0.0f, 90.0f, 0.0f));
         gatesObjects[3].translateDistance( 160, gps::MOVE_LEFT, 1);
+
+        waterFountainObject.translateDistance(80, gps::MOVE_BACKWARD, 1);
+        waterFountainObject.translateDistance(3, gps::MOVE_DOWN, 1);
+        waterFountainObject.scaleDistance(4);
+
+        for (int index = 0; index < WALLS_NUMBER; index++)
+        {
+            wallObjects[index].translateDistance(3, gps::MOVE_DOWN, 1);
+            wallObjects[index].scaleDistance(1.20f);
+        }
+        for (int index = 0; index < 2; index++)
+        {
+            wallObjects[index].translateDistance((index + 1) * 79.8, gps::MOVE_RIGHT, 1);
+        }
+        wallObjects[2].translateDistance(160, gps::MOVE_RIGHT, 1);
+        wallObjects[2].rotationAbsolute(glm::vec3(0.0f,90.0f,0.0f));
+        wallObjects[3].translateDistance(160, gps::MOVE_RIGHT, 1);
+        wallObjects[3].rotationAbsolute(glm::vec3(0.0f, 90.0f, 0.0f));
+        wallObjects[3].translateDistance(160, gps::MOVE_BACKWARD, 1);
+        for (int index = 4; index < 6; index++)
+        {
+            wallObjects[index].translateDistance((index -3) * 79.8, gps::MOVE_RIGHT, 1);
+            wallObjects[index].translateDistance(160, gps::MOVE_BACKWARD, 1);
+        }
+        for (int index = 6; index < 8; index++)
+        {
+            wallObjects[index].translateDistance((index - 5) * 79.8, gps::MOVE_LEFT, 1);
+            wallObjects[index].translateDistance(160, gps::MOVE_BACKWARD, 1);
+        }
+        wallObjects[8].translateDistance(160, gps::MOVE_LEFT, 1);
+        wallObjects[8].rotationAbsolute(glm::vec3(0.0f, 90.0f, 0.0f));
+        wallObjects[9].translateDistance(160, gps::MOVE_LEFT, 1);
+        wallObjects[9].rotationAbsolute(glm::vec3(0.0f, 90.0f, 0.0f));
+        wallObjects[9].translateDistance(160, gps::MOVE_BACKWARD, 1);
+        for (int index = 10; index < 12; index++)
+        {
+            wallObjects[index].translateDistance((index -9) * 79.8, gps::MOVE_LEFT, 1);
+        }
 
         for (int index = 0; index < STREETS_NUMBER / 4; index++)
         {
@@ -166,7 +212,6 @@ namespace gps {
             streetsObjects[index].translateDistance( (index - 3 * STREETS_NUMBER / 4 + 1) * 12 * 2, gps::MOVE_LEFT, 1);
         }
 
-
         for (int index = 0; index < GRASS_NUMBER; index++)
         {
             
@@ -185,15 +230,12 @@ namespace gps {
     }
     void ObjectManager::resizeWindow(gps::Window myWindow)
     {
-        myCustomShader.useShaderProgram();
+        mainShader.useShaderProgram();
         // set projection matrix
         projection = glm::perspective(glm::radians(45.0f), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
         //send matrix data to shader
-        GLint projLoc = glGetUniformLocation(myCustomShader.shaderProgram, "projection");
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-        lightShader.useShaderProgram();
-
-        glUniformMatrix4fv(glGetUniformLocation(lightShader.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));        
+        GLint projLoc = glGetUniformLocation(mainShader.shaderProgram, "projection");
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));       
     }
     glm::mat4 ObjectManager::getModel()
     {
@@ -233,19 +275,17 @@ namespace gps {
     }
     void ObjectManager::initModels()
     {
-        lightCube.LoadModel("models/cube/cube.obj");
         wallGate.LoadModel("models/buildings/WallGate.obj");
+        wall.LoadModel("models/buildings/Wall.obj");
         grass.LoadModel("models/grass/grass.obj");
         street.LoadModel("models/road/road.obj");
+        waterFountain.LoadModel("models/buildings/waterFountain.obj");
 
-        /*for (int i = 0; i < WALLS_NUMBER; i++)
+        for (int i = 0; i < WALLS_NUMBER; i++)
         {
             InGameObject genericObject;
             wallObjects.push_back(genericObject);
-            gps::Model3D wall;
-            wall.LoadModel("models/buildings/Wall.obj");
-            walls.push_back(wall);
-        }*/
+        }
         for (int i = 0; i < GATES_NUMBER; i++)
         {
             gps::InGameObject genericObject;
@@ -273,34 +313,47 @@ namespace gps {
     }
     void ObjectManager::initShaders()
     {
-        myCustomShader.loadShader("shaders/shaderStart.vert", "shaders/shaderStart.frag");
-        lightShader.loadShader("shaders/lightCube.vert", "shaders/lightCube.frag");
+        mainShader.loadShader("shaders/shaderStart.vert", "shaders/shaderStart.frag");
         depthMapShader.loadShader("shaders/simpleDepthMap.vert", "shaders/simpleDepthMap.frag");
     }
     void ObjectManager::initUniforms(gps::Window myWindow)
     {
-        myCustomShader.useShaderProgram();
-        modelLoc = glGetUniformLocation(myCustomShader.shaderProgram, "model");
-        viewLoc = glGetUniformLocation(myCustomShader.shaderProgram, "view");
+        mainShader.useShaderProgram();
+        modelLoc = glGetUniformLocation(mainShader.shaderProgram, "model");
+        viewLoc = glGetUniformLocation(mainShader.shaderProgram, "view");
         projection = glm::perspective(glm::radians(45.0f), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
-        glUniformMatrix4fv(glGetUniformLocation(myCustomShader.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(mainShader.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-        // set the light direction (direction towards the light)
-        lightDir = glm::vec3(0.0f, 2.5f, 0.5f) * 20.0f;
-        lightDirLoc = glGetUniformLocation(myCustomShader.shaderProgram, "lightDir");
+        for (int i = 0; i < LIGHT_MAX; i++)
+        {
+            pointLightsIntensity[i] = 1.0f;
+        }
+        pointLightIntensityLoc = glGetUniformLocation(mainShader.shaderProgram, "lightIntensities");
+        glUniform1fv(pointLightIntensityLoc, LIGHT_MAX, pointLightsIntensity);
+
+        pointLight[0] = glm::vec3(0.0f, 2.0f, 40.0f);
+        pointLight[1] = glm::vec3(2.0f, 2.0f, -3.0f);
+        pointLightLoc = glGetUniformLocation(mainShader.shaderProgram, "lightsPos");
+        glUniform3fv(pointLightLoc, LIGHT_MAX, glm::value_ptr(pointLight[0]));
+
+        pointLightColor[0] = colorParser.convertFromEnumToVector(colorParser.WHITE);
+        pointLightColor[1] = colorParser.convertFromEnumToVector(colorParser.WHITE);
+        pointLightColorLoc = glGetUniformLocation(mainShader.shaderProgram, "lightsColors");
+        glUniform3fv(pointLightColorLoc, 1, glm::value_ptr(pointLightColor[0]));
+
+        lightDir = glm::vec3(1.0f, 2.5f, 3.5f) * 20.0f;
+        lightDirLoc = glGetUniformLocation(mainShader.shaderProgram, "lightDir");
         glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
 
         // set light color
-        lightColor = glm::vec3(1.0f, 1.0f, 1.0f); //white light
-        lightColorLoc = glGetUniformLocation(myCustomShader.shaderProgram, "lightColor");
+        lightColor = colorParser.convertFromEnumToVector(colorParser.ORANGE) * glm::vec3(0.4f);
+        lightColorLoc = glGetUniformLocation(mainShader.shaderProgram, "lightColor");
         glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
-        lightShader.useShaderProgram();
-        glUniformMatrix4fv(glGetUniformLocation(lightShader.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     }
 
     glm::mat4 ObjectManager::computeLightSpaceTrMatrix(gps::Window myWindow, gps::Camera myCamera)
     {
-        const GLfloat near_plane = 35.0f, far_plane = 200.0f;
+        const GLfloat near_plane = 1.0f, far_plane = 200.0f;
         glm::mat4 lightProjection = glm::ortho(
             -100.0f, 
             100.0f,
@@ -309,9 +362,15 @@ namespace gps {
             near_plane,
             far_plane);
 
-        glm::vec3 lightDirTr = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(lightAngle), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::vec4(lightDir, 1.0f));
-        glm::mat4 lightView = glm::lookAt(lightDirTr, myCamera.getCameraTarget(), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 lightPosition = glm::rotate(glm::mat4(1.0f), glm::radians(lightAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::vec3 lightDirTr = glm::vec3(lightPosition * glm::vec4(lightDir, 1.0f));
+        glm::mat4 lightView = glm::lookAt(lightDirTr, glm::vec3(0), glm::vec3(0.0f, 1.0f, 0.0f));
 
         return lightProjection * lightView;
+    }
+    void ObjectManager::changeDynamicComponents()
+    {
+        float randomVariance = 1/(float)(rand() % 1000)+0.5f;
+        pointLightsIntensity[0] = randomVariance;
     }
 }

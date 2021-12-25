@@ -1,4 +1,5 @@
 #define GLEW_STATIC
+#include "wtypes.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -19,12 +20,16 @@
 
 #include <iostream>
 
+int horizontalMonitor;
+int verticalMonitor;
+int horizontalWindowed = 720;
+int verticalWindowed = 1280;
 // window
 gps::Window myWindow;
 
 // camera
 gps::Camera myCamera(
-    glm::vec3(0.0f, 0.0f, 3.0f),
+    glm::vec3(0.0f, 0.5f, 3.0f),
     glm::vec3(0.0f, 0.0f, -10.0f),
     glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -38,7 +43,7 @@ std::vector<const GLchar*> faces;
 gps::SkyBox mySkyBox;
 gps::Shader skyboxShader;
 gps::DeltaTime deltaTime;
-
+void GetDesktopResolution(int& horizontal, int& vertical);
 
 void initSkyBoxShader()
 {
@@ -53,16 +58,19 @@ void initSkyBoxShader()
 }
 void initFaces()
 {
-
-    faces.push_back("skybox/posx.jpg");
-    faces.push_back("skybox/negx.jpg");
-    faces.push_back("skybox/posy.jpg");
-    faces.push_back("skybox/negy.jpg");
-    faces.push_back("skybox/posz.jpg");
-    faces.push_back("skybox/negz.jpg");
+    faces.push_back("skybox/Variant1/posx.jpg");
+    faces.push_back("skybox/Variant1/negx.jpg");
+    faces.push_back("skybox/Variant1/posy.jpg");
+    faces.push_back("skybox/Variant1/negy.jpg");
+    faces.push_back("skybox/Variant1/posz.jpg");
+    faces.push_back("skybox/Variant1/negz.jpg");
 }
 
 void windowResizeCallback(GLFWwindow* window, int width, int height) {
+
+    if (width < 10 || height < 10)
+        return;
+
 	fprintf(stdout, "Window resized! New width: %d , and height: %d\n", width, height);
 
     WindowDimensions newDimensions;
@@ -145,6 +153,21 @@ void processMovement() {
 		myCamera.move(gps::MOVE_RIGHT, actualMovementSpeed);
         
 	}
+    if (pressedKeys[GLFW_KEY_G]) {
+        glfwSetWindowMonitor(myWindow.getWindow(), nullptr, 100, 100, verticalWindowed, horizontalWindowed, GLFW_DONT_CARE);
+    }
+    if (pressedKeys[GLFW_KEY_F]) {
+        glfwSetWindowMonitor(myWindow.getWindow(), glfwGetPrimaryMonitor(), 0, 0, verticalMonitor, horizontalMonitor, GLFW_DONT_CARE);
+    }
+
+    if (pressedKeys[GLFW_KEY_K])
+    {
+        myCamera.setWalkingVar(false);
+    }
+    if (pressedKeys[GLFW_KEY_L])
+    {
+        myCamera.setWalkingVar(true);
+    }
 
     // line view
     if (pressedKeys[GLFW_KEY_7]) {
@@ -163,7 +186,7 @@ void processMovement() {
 }
 
 void initOpenGLWindow() {
-    myWindow.Create(1024, 768, "OpenGL Project Core");
+    myWindow.Create(verticalWindowed, horizontalWindowed, "City");
 }
 
 void setWindowCallbacks() {
@@ -185,8 +208,6 @@ void initOpenGLState() {
     glFrontFace(GL_CCW); // GL_CCW for counter clock-wise
 }
 void renderScene() {
-
-    
     objectManager.renderScene(myWindow, myCamera, deltaTime);
     mySkyBox.Draw(skyboxShader, objectManager.getView(myCamera), objectManager.getProjection(myWindow));
 }
@@ -198,6 +219,8 @@ void cleanup() {
 
 int main(int argc, const char * argv[]) {
 
+    GetDesktopResolution(horizontalMonitor, verticalMonitor);
+
     try {
         initOpenGLWindow();
     } catch (const std::exception& e) {
@@ -206,14 +229,13 @@ int main(int argc, const char * argv[]) {
     }
 
     initOpenGLState();
-    objectManager.initObjectManager(myWindow);
+    objectManager.initObjectManager(myWindow, myCamera);
     setWindowCallbacks();
 
     initFaces();
     initSkyBoxShader();
 
     deltaTime.initializeDeltaTime();
-    objectManager.initObjectsModels(myWindow, myCamera, deltaTime);
 	// application loop
 	while (!glfwWindowShouldClose(myWindow.getWindow())) {
         deltaTime.calculateDeltaTime(true);
@@ -227,4 +249,18 @@ int main(int argc, const char * argv[]) {
 	cleanup();
 
     return EXIT_SUCCESS;
+}
+
+void GetDesktopResolution(int& horizontal, int& vertical)
+{
+    RECT desktop;
+    // Get a handle to the desktop window
+    const HWND hDesktop = GetDesktopWindow();
+    // Get the size of screen to the variable desktop
+    GetWindowRect(hDesktop, &desktop);
+    // The top left corner will have coordinates (0,0)
+    // and the bottom right corner will have coordinates
+    // (horizontal, vertical)
+    horizontal = desktop.right;
+    vertical = desktop.bottom;
 }

@@ -10,6 +10,8 @@ namespace gps {
         this->cameraUpDirection = glm::vec3(0.0f, 1.0f, 0.0f);
         this->worldUp = cameraUp;
         this->cameraRightDirection = glm::normalize(glm::cross(this->cameraFrontDirection, this->cameraUpDirection));
+        this->lastWalkingPosition = this->cameraPosition;
+        this->walking = true;
     }
 
     //return the view matrix, using the glm::lookAt() function
@@ -19,19 +21,31 @@ namespace gps {
 
     //update the camera internal parameters following a camera move event
     void Camera::move(MOVE_DIRECTION direction, float speed) {
+        glm::vec3 potentialNewPosition = this->cameraPosition;
         switch (direction) {
         case MOVE_FORWARD:
-            this->cameraPosition += this->cameraFrontDirection * speed;
+            potentialNewPosition += this->cameraFrontDirection * speed;
             break;
         case MOVE_BACKWARD:
-            this->cameraPosition -= this->cameraFrontDirection * speed;
+            potentialNewPosition -= this->cameraFrontDirection * speed;
             break;
         case MOVE_RIGHT:
-            this->cameraPosition += this->cameraRightDirection * speed;
+            potentialNewPosition += this->cameraRightDirection * speed;
             break;
         case MOVE_LEFT:
-            this->cameraPosition -= this->cameraRightDirection * speed;
+            potentialNewPosition -= this->cameraRightDirection * speed;
             break;
+        }
+
+        // keep the camera on street level
+        if (this->walking)
+        {
+            this->cameraPosition.x = potentialNewPosition.x;
+            this->cameraPosition.z = potentialNewPosition.z;
+        }
+        else
+        {
+            this->cameraPosition = potentialNewPosition;
         }
     }
 
@@ -55,5 +69,31 @@ namespace gps {
     glm::vec3 Camera::getCameraTarget()
     {
         return this->cameraTarget;
+    }
+    glm::vec3 Camera::getCameraFrontDirection()
+    {
+        return cameraFrontDirection;
+    }
+    void Camera::setWalkingVar(bool walkingVar)
+    {
+        if (walkingVar != this->walking)
+        {
+            this->walking = walkingVar;
+            if (this->walking)
+            {
+                this->cameraPosition = this->lastWalkingPosition;
+            }
+            else
+            {
+                lastWalkingPosition = this->cameraPosition;
+
+                this->cameraPosition.y = 4.0f;
+            }
+        }
+        
+    }
+    bool Camera::getWalkingVar()
+    {
+        return this->walking;
     }
 }
