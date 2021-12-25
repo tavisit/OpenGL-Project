@@ -1,21 +1,11 @@
 #define GLEW_STATIC
 #include "wtypes.h"
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp> //core glm functionality
-#include <glm/gtc/matrix_transform.hpp> //glm extension for generating common transformation matrices
-#include <glm/gtc/matrix_inverse.hpp> //glm extension for computing inverse matrices
-#include <glm/gtc/type_ptr.hpp> //glm extension for accessing the internal data structure of glm types
 
 #include "Constants.h"
 #include "Window.h"
-#include "Shader.hpp"
 #include "Camera.hpp"
-#include "Model3D.hpp"
 #include "SkyBox.hpp"
-#include "DeltaTime.h"
-#include "InGameObject.hpp"
+#include "DeltaTime.hpp"
 #include "ObjectManager.hpp"
 
 #include <iostream>

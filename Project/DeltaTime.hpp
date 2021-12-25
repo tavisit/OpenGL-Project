@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DeltaTime_hpp
+#define DeltaTime_hpp
 #include "GLFW/glfw3.h"
 #include "iostream"
 namespace gps {
@@ -24,3 +25,4 @@ namespace gps {
         int FPS = 0;
     };
 }
+#endif

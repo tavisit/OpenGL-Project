@@ -1,4 +1,4 @@
-#include "DeltaTime.h"
+#include "DeltaTime.hpp"
 
 namespace gps {
     void DeltaTime::initializeDeltaTime()

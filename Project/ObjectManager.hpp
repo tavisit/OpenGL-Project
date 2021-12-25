@@ -1,14 +1,5 @@
 #ifndef ObjectManager_hpp
 #define ObjectManager_hpp
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp> //core glm functionality
-#include <glm/gtc/matrix_transform.hpp> //glm extension for generating common transformation matrices
-#include <glm/gtc/matrix_inverse.hpp> //glm extension for computing inverse matrices
-#include <glm/gtc/type_ptr.hpp> //glm extension for accessing the internal data structure of glm types
-#include <stdlib.h>     /* srand, rand */
-#include <time.h>       /* time */
 
 #include "Constants.h"
 #include "Window.h"
@@ -16,7 +7,7 @@
 #include "Camera.hpp"
 #include "Model3D.hpp"
 #include "SkyBox.hpp"
-#include "DeltaTime.h"
+#include "DeltaTime.hpp"
 #include "InGameObject.hpp"
 #include "Colors.hpp"
 

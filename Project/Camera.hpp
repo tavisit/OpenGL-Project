@@ -1,8 +1,6 @@
 #ifndef Camera_hpp
 #define Camera_hpp
 
-#include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
 #include "Constants.h"
 
 #include <string>
