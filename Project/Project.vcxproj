@@ -162,13 +162,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\OpenGLProjectTemplate\OpenGL dev libs\include;D:\OpenGLProjectTemplate\OpenGL dev libs\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\OpenGLProjectTemplate\OpenGL dev libs\include;D:\OpenGLProjectTemplate\OpenGL dev libs\glm;D:\__UTCN\Anul_III_Sem_I\GP\Labs\OpenGL_Project\GIT\Project\Libraries\irrKlang-64bit-1.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\OpenGLProjectTemplate\OpenGL dev libs\lib\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;libglew32d.lib;opengl32.lib;glfw3.lib;libglew32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\OpenGLProjectTemplate\OpenGL dev libs\lib\Debug;D:\__UTCN\Anul_III_Sem_I\GP\Labs\OpenGL_Project\GIT\Project\Libraries\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;libglew32d.lib;irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -179,15 +179,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\OpenGLProjectTemplate\OpenGL dev libs\include;D:\OpenGLProjectTemplate\OpenGL dev libs\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\OpenGLProjectTemplate\OpenGL dev libs\include;D:\OpenGLProjectTemplate\OpenGL dev libs\glm;D:\__UTCN\Anul_III_Sem_I\GP\Labs\OpenGL_Project\GIT\Project\Libraries\Irrklang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;libglew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\OpenGLProjectTemplate\OpenGL dev libs\lib\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;libglew32.lib;irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\OpenGLProjectTemplate\OpenGL dev libs\lib\Release;D:\__UTCN\Anul_III_Sem_I\GP\Labs\OpenGL_Project\GIT\Project\Libraries\Irrklang\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

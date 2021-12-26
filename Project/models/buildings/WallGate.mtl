@@ -12,7 +12,6 @@ d 1.000000
 illum 2
 map_Bump -bm 0.500000 Stone_Normal.jpg
 map_Kd Stone.jpg
-map_Ks Stone_Spec.jpg
 
 newmtl Material.002
 Ns 225.000000

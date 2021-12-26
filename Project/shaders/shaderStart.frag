@@ -1,5 +1,4 @@
-#version 410 core
-
+#version 430 core
 in vec3 normal;
 in vec4 fragPosEye;
 in vec4 fragPosLightSpace;
@@ -17,14 +16,18 @@ uniform sampler2D specularTexture;
 uniform sampler2D shadowMap;
 
 // point light
+struct POINT_LIGHT
+{
+    vec3 location;
+    vec3 color;
+    float intensity;
+	// 3 locations
+};
 #define LIGHT_MAX 2
-uniform vec3 lightsPos[LIGHT_MAX];
+layout(location = 0) uniform POINT_LIGHT pointLights[LIGHT_MAX]; // locations [0, LIGHT_MAX*3)
 vec3 currentPointlightPos;
-uniform vec3 lightsColors[LIGHT_MAX];
 vec3 currentPointlightColor;
-uniform float lightIntensities[LIGHT_MAX];
 
-vec3 overallColor;
 float ambientStrength = 0.1f;
 float specularStrength = 0.1f;
 float shininess = 32.0f;
@@ -43,8 +46,7 @@ vec3 CalcPointLight(vec3 currentPointlightPos,vec3 currentPointlightColor)
 	vec3 reflectDir = reflect(-lightDir, Normal);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
 	float distance    = length(currentPointlightPos - fragPos);
-	float attenuation = 1.0 / (constant + linear * distance + 
-  			     quadratic * (distance * distance)); 
+	float attenuation = constant + linear * distance + quadratic * (distance * distance); 
 
 	vec3 ambient = currentPointlightColor;
 	vec3 diffuse = diff * currentPointlightColor;
@@ -53,14 +55,12 @@ vec3 CalcPointLight(vec3 currentPointlightPos,vec3 currentPointlightColor)
 	diffuse *= vec3(texture(diffuseTexture, fragTexCoords));
 	specular *= vec3(texture(specularTexture, fragTexCoords));
 
-	return (ambient + diffuse + specular) * attenuation;
+	return (ambient + diffuse + specular) / attenuation;
 }
 vec3 CalcDirLight()
 {
     vec3 lightDirTemp = normalize(lightDir);
-    // diffuse shading
     float diff = max(dot(Normal, lightDirTemp), 0.0);
-    // specular shading
     vec3 reflectDir = reflect(-lightDirTemp, Normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
 
@@ -109,37 +109,53 @@ void main()
 	vec3 light = CalcDirLight();
 	
 	float distance = 1000;
+	int lightMinIndex;
+	// For all lights, compute the light effect on the fragment
 	for(int i=0;i<LIGHT_MAX;i++)
 	{
-		distance = min(distance,length(lightsPos[i] - fragPos));
-		vec3 currentCalcPoint = CalcPointLight(lightsPos[i],lightsColors[i]);
-		currentCalcPoint = currentCalcPoint*clamp(lightIntensities[i],0.0f,1.0f);
+		float currentDistance = length(pointLights[i].location - fragPos);
+		if(currentDistance<distance)
+		{
+			distance = currentDistance;
+			lightMinIndex = i;
+		}
+		vec3 currentCalcPoint = CalcPointLight(pointLights[i].location,pointLights[i].color);
+		currentCalcPoint = currentCalcPoint*clamp(pointLights[i].intensity,0.0f,1.0f);
 		light += currentCalcPoint;
 	}
-	if(distance >= 10.0f && distance < 20.0f)
+	// If the light crosses a shadow, it has to illuminate and eliminiate to a degree the shadow
+	//
+	shadow = computeShadow();
+	if(distance < 10.0f * pointLights[lightMinIndex].intensity)
 	{
-		shadow = computeShadow();
-		distance = 1 - ((distance-10.0f)/10.0f);
-		shadow = clamp(shadow-distance,0.0f,1.0f);
-	}
-	else if(distance > 20.0f)
-	{
-		shadow = computeShadow();
+		distance = 1 - (distance/(10.0f* pointLights[lightMinIndex].intensity));
+		shadow = shadow-distance;
 	}
 	vec3 lighting = light;
 
+	// Compute ambient light component
     vec3 ambient = ambientStrength * light;
+	
+	// Compute diffuse light component
     float diff = max(dot(lightDir, normal), 0.0);
-    vec3 diffuse = ambientStrength*diff * light;
+    vec3 diffuse = ambientStrength * diff * light;
+	
+	// Compute specular light component
     vec3 halfwayDir = normalize(lightDir + viewDir); 
     float spec = pow(max(dot(viewDir, halfwayDir), 0.0), shininess);
-    vec3 specular = specularStrength*spec * light; 
-
+    vec3 specular = specularStrength * spec * light; 
+	
+	// Modulate ambiental,diffuse and specular components
 	ambient *= vec3(texture(diffuseTexture, fragTexCoords));
 	diffuse *= vec3(texture(diffuseTexture, fragTexCoords));
 	specular *= vec3(texture(specularTexture, fragTexCoords));
+
+	
+	// Compute overall color
 	lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * light;    
     
+	
+	// Compute the fog factor
 	float fogFactor = computeFog();
 	vec4 fogColor = vec4(0.5f, 0.5f, 0.5f, 1.0f);
 	

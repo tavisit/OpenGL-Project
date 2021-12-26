@@ -113,12 +113,12 @@ namespace gps {
             streetsObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &street, &mainShader, true);
         }
 
-        pointLightIntensityLoc = glGetUniformLocation(mainShader.shaderProgram, "lightIntensities");
-        glUniform1fv(pointLightIntensityLoc, LIGHT_MAX, pointLightsIntensity);
-        pointLightLoc = glGetUniformLocation(mainShader.shaderProgram, "lightsPos");
-        glUniform3fv(pointLightLoc, LIGHT_MAX, glm::value_ptr(pointLight[0]));
-        pointLightColorLoc = glGetUniformLocation(mainShader.shaderProgram, "lightsColors");
-        glUniform3fv(pointLightColorLoc, 1, glm::value_ptr(pointLightColor[0]));
+        for (int i = 0; i < LIGHT_MAX; i++)
+        {
+            glUniform3fv(i * 3, 1, glm::value_ptr(pointLights[i].location));
+            glUniform3fv(i * 3 + 1, 1, glm::value_ptr(pointLights[i].color));
+            glUniform1f(i * 3 + 2, pointLights[i].intensity);
+        }
     }
     void ObjectManager::initObjectManager(gps::Window myWindow, gps::Camera myCamera)
     {
@@ -324,29 +324,21 @@ namespace gps {
         projection = glm::perspective(glm::radians(45.0f), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
         glUniformMatrix4fv(glGetUniformLocation(mainShader.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
+        pointLights[0].location = glm::vec3(0.0f, 2.0f, 40.0f);
+        pointLights[1].location = glm::vec3(2.0f, 2.0f, -3.0f);
         for (int i = 0; i < LIGHT_MAX; i++)
         {
-            pointLightsIntensity[i] = 1.0f;
+            glUniform3fv(i * 3, 1, glm::value_ptr(pointLights[i].location));
+            glUniform3fv(i * 3 + 1, 1, glm::value_ptr(pointLights[i].color));
+            glUniform1f(i * 3 + 2, pointLights[i].intensity);
         }
-        pointLightIntensityLoc = glGetUniformLocation(mainShader.shaderProgram, "lightIntensities");
-        glUniform1fv(pointLightIntensityLoc, LIGHT_MAX, pointLightsIntensity);
-
-        pointLight[0] = glm::vec3(0.0f, 2.0f, 40.0f);
-        pointLight[1] = glm::vec3(2.0f, 2.0f, -3.0f);
-        pointLightLoc = glGetUniformLocation(mainShader.shaderProgram, "lightsPos");
-        glUniform3fv(pointLightLoc, LIGHT_MAX, glm::value_ptr(pointLight[0]));
-
-        pointLightColor[0] = colorParser.convertFromEnumToVector(colorParser.WHITE);
-        pointLightColor[1] = colorParser.convertFromEnumToVector(colorParser.WHITE);
-        pointLightColorLoc = glGetUniformLocation(mainShader.shaderProgram, "lightsColors");
-        glUniform3fv(pointLightColorLoc, 1, glm::value_ptr(pointLightColor[0]));
 
         lightDir = glm::vec3(1.0f, 2.5f, 3.5f) * 20.0f;
         lightDirLoc = glGetUniformLocation(mainShader.shaderProgram, "lightDir");
         glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
 
         // set light color
-        lightColor = colorParser.convertFromEnumToVector(colorParser.ORANGE) * glm::vec3(0.4f);
+        lightColor = colorParser.convertFromHEXToVector("FFAB00") * glm::vec3(0.6f);
         lightColorLoc = glGetUniformLocation(mainShader.shaderProgram, "lightColor");
         glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
     }
@@ -370,7 +362,7 @@ namespace gps {
     }
     void ObjectManager::changeDynamicComponents()
     {
-        float randomVariance = 1/(float)(rand() % 1000)+0.5f;
-        pointLightsIntensity[0] = randomVariance;
+        float randomVariance = sin(glfwGetTime());
+        pointLights[0].intensity = randomVariance;
     }
 }

@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <string>
+#include <sstream>
+#include <iomanip>
 
 
 namespace gps {

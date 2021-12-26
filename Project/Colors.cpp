@@ -1,5 +1,4 @@
 #include "Colors.hpp"
-#pragma once
 
 glm::vec3 gps::Colors::convertFromRGBToVector(glm::vec3 rgb)
 {
@@ -8,10 +7,14 @@ glm::vec3 gps::Colors::convertFromRGBToVector(glm::vec3 rgb)
 
 glm::vec3 gps::Colors::convertFromHEXToVector(std::string hexValue)
 {
-    int r, g, b;
-    sscanf_s(hexValue.c_str(), "%02hhx%02hhx%02hhx", &r, &g, &b);
-
-    return glm::vec3(r / 255, g / 255, b / 255);
+    float r, g, b;
+    std::istringstream converter(hexValue);
+    unsigned int value;
+    converter >> std::hex >> value;
+    r = ((value >> 16) & 0xFF) / 255.0;  // Extract the RR byte
+    g = ((value >> 8) & 0xFF) / 255.0;   // Extract the GG byte
+    b = ((value) & 0xFF) / 255.0;
+    return glm::vec3(r,g,b);
 
 }
 

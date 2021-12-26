@@ -52,14 +52,6 @@ namespace gps {
         glm::vec3 lightColor;
         GLuint lightColorLoc;
 
-        // point lights
-        #define LIGHT_MAX 2
-        glm::vec3 pointLight[LIGHT_MAX];
-        glm::vec3 pointLightColor[LIGHT_MAX];
-        float pointLightsIntensity[LIGHT_MAX];
-        GLuint pointLightLoc;
-        GLuint pointLightColorLoc;
-        GLuint pointLightIntensityLoc;
 
         const unsigned int SHADOW_WIDTH = 1024 * 16;
         const unsigned int SHADOW_HEIGHT = 1024 * 16;
@@ -88,8 +80,18 @@ namespace gps {
 
         Colors colorParser;
 
-        float pointLightIntensityChanger;
-
+        // point lights
+        struct POINT_LIGHT
+        {
+            glm::vec3 location = glm::vec3(3.0f);
+            glm::vec3 color = glm::vec3(1.0f);
+            float intensity = 1.0f;
+        };
+        #define LIGHT_MAX 2
+        POINT_LIGHT pointLights[LIGHT_MAX];
+        GLuint pointLightLoc;
+        GLuint pointLightColorLoc;
+        GLuint pointLightIntensityLoc;
     };
 }
 
