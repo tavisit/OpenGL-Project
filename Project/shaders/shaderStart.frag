@@ -11,6 +11,7 @@ out vec4 fColor;
 // light
 uniform	vec3 lightColor;
 uniform	vec3 lightDir;
+uniform	float alpha;
 uniform sampler2D diffuseTexture;
 uniform sampler2D specularTexture;
 uniform sampler2D shadowMap;
@@ -157,7 +158,7 @@ void main()
 	
 	// Compute the fog factor
 	float fogFactor = computeFog();
-	vec4 fogColor = vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	vec3 fogColor = vec3(0.5f, 0.5f, 0.5f);
 	
-	fColor = mix(fogColor, min(vec4(lighting * color, 1.0f), vec4(1.0f)), fogFactor);
+	fColor = vec4(mix(fogColor, min(lighting * color, vec3(1.0f)), fogFactor),alpha);
 }

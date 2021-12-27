@@ -68,6 +68,7 @@ namespace gps {
         gps::Model3D street;
         gps::Model3D building;
         gps::Model3D waterFountain;
+        gps::Model3D waterPool;
 
         GLfloat lightAngle;
 
@@ -77,6 +78,7 @@ namespace gps {
         std::vector<gps::InGameObject> grassObjects;
         std::vector<gps::InGameObject> buildingsObjects;
         gps::InGameObject waterFountainObject;
+        gps::InGameObject waterPoolObject;
 
         Colors colorParser;
 

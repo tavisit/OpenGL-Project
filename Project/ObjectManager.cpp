@@ -51,6 +51,8 @@ namespace gps {
 
         glCheckError();
         waterFountainObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterFountain, &depthMapShader, false);
+        waterPoolObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterPool, &depthMapShader, false);
+
         for (int index = 0; index < GATES_NUMBER; index++)
         {
             gatesObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wallGate, &depthMapShader, false);
@@ -95,6 +97,7 @@ namespace gps {
         glCheckError();
 
         waterFountainObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterFountain, &mainShader, true);
+        waterPoolObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterPool, &mainShader, true);
         for (int index = 0; index < GATES_NUMBER; index++)
         {
             gatesObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wallGate, &mainShader, true);
@@ -148,6 +151,10 @@ namespace gps {
         waterFountainObject.translateDistance(80, gps::MOVE_BACKWARD, 1);
         waterFountainObject.translateDistance(3, gps::MOVE_DOWN, 1);
         waterFountainObject.scaleDistance(4);
+
+        waterPoolObject.translateDistance(80, gps::MOVE_BACKWARD, 1);
+        waterPoolObject.translateDistance(1.5, gps::MOVE_DOWN, 1);
+        waterPoolObject.scaleDistance(4);
 
         for (int index = 0; index < WALLS_NUMBER; index++)
         {
@@ -275,11 +282,13 @@ namespace gps {
     }
     void ObjectManager::initModels()
     {
+        waterPoolObject.setAlpha(0.6f);
         wallGate.LoadModel("models/buildings/WallGate.obj");
         wall.LoadModel("models/buildings/Wall.obj");
         grass.LoadModel("models/grass/grass.obj");
         street.LoadModel("models/road/road.obj");
         waterFountain.LoadModel("models/buildings/waterFountain.obj");
+        waterPool.LoadModel("models/water/water.obj");
 
         for (int i = 0; i < WALLS_NUMBER; i++)
         {
@@ -338,7 +347,8 @@ namespace gps {
         glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
 
         // set light color
-        lightColor = colorParser.convertFromHEXToVector("FFAB00") * glm::vec3(0.6f);
+        //lightColor = colorParser.convertFromHEXToVector("FFAB00") * glm::vec3(0.6f);
+        lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
         lightColorLoc = glGetUniformLocation(mainShader.shaderProgram, "lightColor");
         glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
     }

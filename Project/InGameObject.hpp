@@ -31,12 +31,14 @@ namespace gps {
 
         void drawObject(GLuint normalMatrixLoc, glm::mat4 view, gps::Model3D* model3D, gps::Shader* shader, bool calculateNormals);
 
+        void setAlpha(float alpha);
     private:
         glm::mat4 model;
 
         glm::vec3 location;
         glm::vec3 rotation;
         glm::vec3 scale;
+        float alpha = 1.0f;
     };
 }
 
