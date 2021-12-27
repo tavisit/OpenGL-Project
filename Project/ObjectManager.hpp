@@ -61,7 +61,7 @@ namespace gps {
         #define GATES_NUMBER 4
         #define STREETS_NUMBER 40
         #define GRASS_NUMBER 220
-        #define BUILDINGS_NUMBER 20
+        #define BUILDINGS_NUMBER 40
 
         gps::Model3D grass;
         gps::Model3D wall;
@@ -70,6 +70,8 @@ namespace gps {
         gps::Model3D building;
         gps::Model3D waterFountain;
         gps::Model3D waterPool;
+        gps::Model3D insulaRomana;
+        gps::Model3D forum;
 
         GLfloat lightAngle;
 
@@ -77,9 +79,10 @@ namespace gps {
         std::vector<gps::InGameObject> gatesObjects;
         std::vector<gps::InGameObject> streetsObjects;
         std::vector<gps::InGameObject> grassObjects;
-        std::vector<gps::InGameObject> buildingsObjects;
+        std::vector<gps::InGameObject> insulaRomanaObjects;
         gps::InGameObject waterFountainObject;
         gps::InGameObject waterPoolObject;
+        gps::InGameObject forumObject;
 
         Colors colorParser;
 

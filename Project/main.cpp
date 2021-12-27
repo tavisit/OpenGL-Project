@@ -210,6 +210,16 @@ void cleanup() {
 }
 
 int main(int argc, const char * argv[]) {
+    std::cout << "\n\n\n            Credits\n\n";
+    std::cout << "\n\n            Models\n\n";
+    std::cout << "Low Poly Roman Insula 1 (WIP) (https://skfb.ly/6WEtF) by lexferreira89 is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).\n";
+    std::cout << "\n\n            Sound\n\n";
+    std::cout << "https://pixabay.com/ \n";
+    std::cout << "https://freesound.org/ \n";
+    std::cout << "\n\n            Textures\n\n";
+    std::cout << "Creation of texture maps: https://cpetry.github.io/NormalMap-Online/ \n";
+    std::cout << "\n\n\n";
+
 
     GetDesktopResolution(horizontalMonitor, verticalMonitor);
 

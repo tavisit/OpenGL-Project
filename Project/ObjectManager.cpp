@@ -51,8 +51,13 @@ namespace gps {
 
         glCheckError();
         waterFountainObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterFountain, &depthMapShader, false);
+        
         waterPoolObject.drawObject(glGetUniformLocation(waterShader.shaderProgram, "normalMatrix"), view, &waterPool, &depthMapShader, false);
-
+        forumObject.drawObject(glGetUniformLocation(waterShader.shaderProgram, "normalMatrix"), view, &forum, &depthMapShader, false);
+        for (int index = 0; index < BUILDINGS_NUMBER; index++)
+        {
+            insulaRomanaObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &insulaRomana, &depthMapShader, false);
+        }
         for (int index = 0; index < GATES_NUMBER; index++)
         {
             gatesObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wallGate, &depthMapShader, false);
@@ -96,6 +101,11 @@ namespace gps {
         glCheckError();
 
         waterFountainObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterFountain, &mainShader, true);
+        forumObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &forum, &mainShader, true);
+        for (int index = 0; index < BUILDINGS_NUMBER; index++)
+        {
+            insulaRomanaObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &insulaRomana, &mainShader, true);
+        }
         for (int index = 0; index < GATES_NUMBER; index++)
         {
             gatesObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wallGate, &mainShader, true);
@@ -262,6 +272,65 @@ namespace gps {
                 index++;
             }
         }
+
+        int hideElevation = 40;
+        for (int index = 0; index < BUILDINGS_NUMBER; index++)
+        {
+            insulaRomanaObjects[index].scaleAbsolute(glm::vec3(30.0f));
+            insulaRomanaObjects[index].translateDistance(hideElevation, gps::MOVE_DOWN, 1);
+            // it takes 26(long face) * height * 30(short face)
+        }
+        int insulaIndex = 0;
+        while(insulaIndex < 16)
+        {
+            if (insulaIndex != 4)
+            {
+            insulaRomanaObjects[insulaIndex].translateDistance(12 + hideElevation, gps::MOVE_UP, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(25 + (insulaIndex)*10, gps::MOVE_RIGHT, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(15, gps::MOVE_BACKWARD, 1);
+            insulaIndex++;
+            insulaRomanaObjects[insulaIndex].translateDistance(12 + hideElevation, gps::MOVE_UP, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(25 + (insulaIndex-1) * 10, gps::MOVE_RIGHT, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(15 + 26, gps::MOVE_BACKWARD, 1);
+            insulaIndex++;
+            }
+            else
+            {
+                insulaIndex += 2;
+            }
+            insulaRomanaObjects[insulaIndex].translateDistance(12 + hideElevation, gps::MOVE_UP, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(25 + (insulaIndex - 2) * 10, gps::MOVE_RIGHT, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(120, gps::MOVE_BACKWARD, 1);
+            insulaIndex++;
+            insulaRomanaObjects[insulaIndex].translateDistance(12 + hideElevation, gps::MOVE_UP, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(25 + (insulaIndex - 3) * 10, gps::MOVE_RIGHT, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(120 + 26, gps::MOVE_BACKWARD, 1);
+            insulaIndex++;
+            
+        }
+        while(insulaIndex < 16*2)
+        {
+            insulaRomanaObjects[insulaIndex].translateDistance(12 + hideElevation, gps::MOVE_UP, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(25 + (insulaIndex- 16) * 10, gps::MOVE_LEFT, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(15, gps::MOVE_BACKWARD, 1);
+            insulaIndex++;
+            insulaRomanaObjects[insulaIndex].translateDistance(12 + hideElevation, gps::MOVE_UP, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(25 + (insulaIndex - 1- 16) * 10, gps::MOVE_LEFT, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(15 + 26, gps::MOVE_BACKWARD, 1);
+            insulaIndex++;
+            insulaRomanaObjects[insulaIndex].translateDistance(12 + hideElevation, gps::MOVE_UP, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(25 + (insulaIndex - 2- 16) * 10, gps::MOVE_LEFT, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(120, gps::MOVE_BACKWARD, 1);
+            insulaIndex++;
+            insulaRomanaObjects[insulaIndex].translateDistance(12 + hideElevation, gps::MOVE_UP, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(25 + (insulaIndex - 3- 16) * 10, gps::MOVE_LEFT, 1);
+            insulaRomanaObjects[insulaIndex].translateDistance(120 + 26, gps::MOVE_BACKWARD, 1);
+            insulaIndex++;
+        }
+
+        forumObject.scaleAbsolute(glm::vec3(4.0f));
+        forumObject.translateDistance(2.5, gps::MOVE_DOWN, 1);
+        forumObject.translateAbsolute(glm::vec3(65.0f,forumObject.getLocation().y,35.0f));
     }
     void ObjectManager::resizeWindow(gps::Window myWindow)
     {
@@ -320,6 +389,8 @@ namespace gps {
         street.LoadModel("models/road/road.obj");
         waterFountain.LoadModel("models/buildings/waterFountain.obj");
         waterPool.LoadModel("models/water/water.obj");
+        insulaRomana.LoadModel("models/buildings/Insulae/Insula.obj");
+        forum.LoadModel("models/road/forum.obj");
 
         for (int i = 0; i < WALLS_NUMBER; i++)
         {
@@ -341,15 +412,11 @@ namespace gps {
             InGameObject genericObject;
             grassObjects.push_back(genericObject);
         }
-        /*
         for (int i = 0; i < BUILDINGS_NUMBER; i++)
         {
             InGameObject genericObject;
-            buildingsObjects.push_back(genericObject);
-            gps::Model3D wallGate;
-            wallGate.LoadModel("models/buildings/WallGate.obj");
-            wallGates.push_back(wallGate);
-        }*/
+            insulaRomanaObjects.push_back(genericObject);
+        }
     }
     void ObjectManager::initShaders()
     {
