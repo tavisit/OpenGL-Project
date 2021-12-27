@@ -26,6 +26,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model3D.cpp" />
+    <ClCompile Include="Music.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SkyBox.cpp" />
@@ -41,6 +42,7 @@
     <ClInclude Include="InGameObject.hpp" />
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="Model3D.hpp" />
+    <ClInclude Include="Music.hpp" />
     <ClInclude Include="ObjectManager.hpp" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="SkyBox.hpp" />
@@ -55,8 +57,8 @@
     <None Include="shaders\simpleDepthMap.vert" />
     <None Include="shaders\skyboxShader.frag" />
     <None Include="shaders\skyboxShader.vert" />
-    <None Include="shaders\water.frag" />
-    <None Include="shaders\water.vert" />
+    <None Include="shaders\waterShader.frag" />
+    <None Include="shaders\waterShader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

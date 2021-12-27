@@ -51,7 +51,7 @@ namespace gps {
 
         glCheckError();
         waterFountainObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterFountain, &depthMapShader, false);
-        waterPoolObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterPool, &depthMapShader, false);
+        waterPoolObject.drawObject(glGetUniformLocation(waterShader.shaderProgram, "normalMatrix"), view, &waterPool, &depthMapShader, false);
 
         for (int index = 0; index < GATES_NUMBER; index++)
         {
@@ -79,7 +79,6 @@ namespace gps {
 
         // send view matrix to shader
         view = myCamera.getViewMatrix();
-
         glUniformMatrix4fv(glGetUniformLocation(mainShader.shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
         // compute light direction transformation matrix
@@ -88,8 +87,8 @@ namespace gps {
         glUniformMatrix3fv(glGetUniformLocation(mainShader.shaderProgram, "lightDirMatrix"), 1, GL_FALSE, glm::value_ptr(lightDirMatrix));
 
         glViewport(0, 0, myWindow.getWindowDimensions().width, myWindow.getWindowDimensions().height);
-        mainShader.useShaderProgram();
 
+        mainShader.useShaderProgram();
         // bind the depth map
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, depthMapTexture);
@@ -97,7 +96,6 @@ namespace gps {
         glCheckError();
 
         waterFountainObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterFountain, &mainShader, true);
-        waterPoolObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterPool, &mainShader, true);
         for (int index = 0; index < GATES_NUMBER; index++)
         {
             gatesObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wallGate, &mainShader, true);
@@ -115,6 +113,36 @@ namespace gps {
         {
             streetsObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &street, &mainShader, true);
         }
+
+        for (int i = 0; i < LIGHT_MAX; i++)
+        {
+            glUniform3fv(i * 3, 1, glm::value_ptr(pointLights[i].location));
+            glUniform3fv(i * 3 + 1, 1, glm::value_ptr(pointLights[i].color));
+            glUniform1f(i * 3 + 2, pointLights[i].intensity);
+        }
+
+        waterShader.useShaderProgram();
+        // send lightSpace matrix to shader
+        glUniformMatrix4fv(glGetUniformLocation(waterShader.shaderProgram, "lightSpaceTrMatrix"), 1, GL_FALSE, glm::value_ptr(computeLightSpaceTrMatrix(myWindow, myCamera)));
+
+        // send view matrix to shader
+        view = myCamera.getViewMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(waterShader.shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+        // compute light direction transformation matrix
+        lightDirMatrix = glm::mat3(glm::inverseTranspose(view));
+        // send lightDir matrix data to shader
+        glUniformMatrix3fv(glGetUniformLocation(waterShader.shaderProgram, "lightDirMatrix"), 1, GL_FALSE, glm::value_ptr(lightDirMatrix));
+
+        glViewport(0, 0, myWindow.getWindowDimensions().width, myWindow.getWindowDimensions().height);
+        waterShader.useShaderProgram();
+
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, depthMapTexture);
+        glUniform1i(glGetUniformLocation(waterShader.shaderProgram, "shadowMap"), 3);
+
+        glUniform1f(glGetUniformLocation(waterShader.shaderProgram, "time"), sin(glfwGetTime()));
+        waterPoolObject.drawObject(glGetUniformLocation(waterShader.shaderProgram, "normalMatrix"), view, &waterPool, &waterShader, true);
 
         for (int i = 0; i < LIGHT_MAX; i++)
         {
@@ -237,12 +265,15 @@ namespace gps {
     }
     void ObjectManager::resizeWindow(gps::Window myWindow)
     {
-        mainShader.useShaderProgram();
-        // set projection matrix
         projection = glm::perspective(glm::radians(45.0f), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
-        //send matrix data to shader
+
+        mainShader.useShaderProgram();
         GLint projLoc = glGetUniformLocation(mainShader.shaderProgram, "projection");
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));       
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));      
+
+        waterShader.useShaderProgram();
+        projLoc = glGetUniformLocation(waterShader.shaderProgram, "projection");
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
     }
     glm::mat4 ObjectManager::getModel()
     {
@@ -282,7 +313,7 @@ namespace gps {
     }
     void ObjectManager::initModels()
     {
-        waterPoolObject.setAlpha(0.6f);
+        waterPoolObject.setAlpha(0.8f);
         wallGate.LoadModel("models/buildings/WallGate.obj");
         wall.LoadModel("models/buildings/Wall.obj");
         grass.LoadModel("models/grass/grass.obj");
@@ -324,32 +355,43 @@ namespace gps {
     {
         mainShader.loadShader("shaders/shaderStart.vert", "shaders/shaderStart.frag");
         depthMapShader.loadShader("shaders/simpleDepthMap.vert", "shaders/simpleDepthMap.frag");
+        waterShader.loadShader("shaders/waterShader.vert", "shaders/waterShader.frag");
     }
     void ObjectManager::initUniforms(gps::Window myWindow)
     {
-        mainShader.useShaderProgram();
-        modelLoc = glGetUniformLocation(mainShader.shaderProgram, "model");
-        viewLoc = glGetUniformLocation(mainShader.shaderProgram, "view");
-        projection = glm::perspective(glm::radians(45.0f), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
-        glUniformMatrix4fv(glGetUniformLocation(mainShader.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-        pointLights[0].location = glm::vec3(0.0f, 2.0f, 40.0f);
-        pointLights[1].location = glm::vec3(2.0f, 2.0f, -3.0f);
+        projection = glm::perspective(glm::radians(45.0f), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
+        // set light color
+
+        pointLights[0].location = glm::vec3(-10.0f, 1.0f, 40.0f);
+        pointLights[1].location = glm::vec3(-20.0f, 1.0f, -5.0f);
+        lightDir = glm::vec3(1.0f, 2.5f, 3.5f) * 20.0f;
+        //lightColor = colorParser.convertFromHEXToVector("FFAB00") * glm::vec3(0.6f);
+        lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        mainShader.useShaderProgram();
+        glUniformMatrix4fv(glGetUniformLocation(mainShader.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         for (int i = 0; i < LIGHT_MAX; i++)
         {
             glUniform3fv(i * 3, 1, glm::value_ptr(pointLights[i].location));
             glUniform3fv(i * 3 + 1, 1, glm::value_ptr(pointLights[i].color));
             glUniform1f(i * 3 + 2, pointLights[i].intensity);
         }
-
-        lightDir = glm::vec3(1.0f, 2.5f, 3.5f) * 20.0f;
         lightDirLoc = glGetUniformLocation(mainShader.shaderProgram, "lightDir");
         glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
-
-        // set light color
-        //lightColor = colorParser.convertFromHEXToVector("FFAB00") * glm::vec3(0.6f);
-        lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
         lightColorLoc = glGetUniformLocation(mainShader.shaderProgram, "lightColor");
+        glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
+
+        waterShader.useShaderProgram();
+        glUniformMatrix4fv(glGetUniformLocation(waterShader.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        for (int i = 0; i < LIGHT_MAX; i++)
+        {
+            glUniform3fv(i * 3, 1, glm::value_ptr(pointLights[i].location));
+            glUniform3fv(i * 3 + 1, 1, glm::value_ptr(pointLights[i].color));
+            glUniform1f(i * 3 + 2, pointLights[i].intensity);
+        }
+        lightDirLoc = glGetUniformLocation(waterShader.shaderProgram, "lightDir");
+        glUniform3fv(lightDirLoc, 1, glm::value_ptr(lightDir));
+        lightColorLoc = glGetUniformLocation(waterShader.shaderProgram, "lightColor");
         glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
     }
 

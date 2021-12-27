@@ -35,6 +35,7 @@ namespace gps {
 
         gps::Shader mainShader;
         gps::Shader depthMapShader;
+        gps::Shader waterShader;
 
         GLuint shadowMapFBO;
         GLuint depthMapTexture;

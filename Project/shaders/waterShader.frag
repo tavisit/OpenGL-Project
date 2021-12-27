@@ -42,9 +42,9 @@ float quadratic = 0.00375;
 // point light
 vec3 CalcPointLight(vec3 currentPointlightPos,vec3 currentPointlightColor)
 {
-	vec3 pointLightDir = normalize(currentPointlightPos - fragPos);
-	float diff = max(dot(Normal, pointLightDir), 0.0);
-	vec3 reflectDir = reflect(-pointLightDir, Normal);
+	vec3 lightDir = normalize(currentPointlightPos - fragPos);
+	float diff = max(dot(Normal, lightDir), 0.0);
+	vec3 reflectDir = reflect(-lightDir, Normal);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
 	float distance    = length(currentPointlightPos - fragPos);
 	float attenuation = constant + linear * distance + quadratic * (distance * distance); 
@@ -114,22 +114,15 @@ void main()
 	// For all lights, compute the light effect on the fragment
 	for(int i=0;i<LIGHT_MAX;i++)
 	{
-		vec3 vectorToLight = normalize(pointLights[i].location - fragPos);
-
-		if(dot(vectorToLight,Normal)>0.0f)
+		float currentDistance = length(pointLights[i].location - fragPos);
+		if(currentDistance<distance)
 		{
-			float currentDistance = length(pointLights[i].location - fragPos);
-			if(currentDistance<distance)
-			{
-				distance = currentDistance;
-				lightMinIndex = i;
-			}
-			vec3 currentCalcPoint = CalcPointLight(pointLights[i].location,pointLights[i].color);
-			currentCalcPoint = currentCalcPoint*clamp(pointLights[i].intensity,0.0f,1.0f);
-			light += currentCalcPoint;
+			distance = currentDistance;
+			lightMinIndex = i;
 		}
-
-		
+		vec3 currentCalcPoint = CalcPointLight(pointLights[i].location,pointLights[i].color);
+		currentCalcPoint = currentCalcPoint*clamp(pointLights[i].intensity,0.0f,1.0f);
+		light += currentCalcPoint;
 	}
 	// If the light crosses a shadow, it has to illuminate and eliminiate to a degree the shadow
 	//

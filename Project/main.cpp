@@ -7,19 +7,16 @@
 #include "SkyBox.hpp"
 #include "DeltaTime.hpp"
 #include "ObjectManager.hpp"
+#include "Music.hpp"
 
 #include <iostream>
-#include <irrKlang.h>
-using namespace irrklang;
 
-ISoundEngine* SoundEngine = createIrrKlangDevice();
 int horizontalMonitor;
 int verticalMonitor;
 int horizontalWindowed = 720;
 int verticalWindowed = 1280;
 // window
 gps::Window myWindow;
-
 // camera
 gps::Camera myCamera(
     glm::vec3(0.0f, 0.5f, 5.0f),
@@ -36,6 +33,7 @@ std::vector<const GLchar*> faces;
 gps::SkyBox mySkyBox;
 gps::Shader skyboxShader;
 gps::DeltaTime deltaTime;
+gps::Music programMusic;
 void GetDesktopResolution(int& horizontal, int& vertical);
 
 void initSkyBoxShader()
@@ -207,6 +205,7 @@ void renderScene() {
 
 void cleanup() {
     myWindow.Delete();
+    programMusic.~Music();
     //cleanup code for your own data
 }
 
@@ -229,18 +228,18 @@ int main(int argc, const char * argv[]) {
     initSkyBoxShader();
     deltaTime.initializeDeltaTime();
 
-    SoundEngine->play2D("Music/city_humming.wav", true);
-
 	// application loop
 	while (!glfwWindowShouldClose(myWindow.getWindow())) {
         deltaTime.calculateDeltaTime(true);
+
+        programMusic.update(myCamera);
+
         processMovement();
         renderScene();
 
 		glfwPollEvents();
 		glfwSwapBuffers(myWindow.getWindow());
     }
-
 	cleanup();
 
     return EXIT_SUCCESS;

@@ -58,6 +58,9 @@
     <ClCompile Include="Colors.cpp">
       <Filter>Files\Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="Music.cpp">
+      <Filter>Files\High-Level</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Colors.hpp">
@@ -99,6 +102,9 @@
     <ClInclude Include="Window.h">
       <Filter>Files\Low-Level</Filter>
     </ClInclude>
+    <ClInclude Include="Music.hpp">
+      <Filter>Files\High-Level</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shaderStart.frag">
@@ -119,10 +125,10 @@
     <None Include="shaders\skyboxShader.vert">
       <Filter>Files\Shaders</Filter>
     </None>
-    <None Include="shaders\water.vert">
+    <None Include="shaders\waterShader.vert">
       <Filter>Files\Shaders</Filter>
     </None>
-    <None Include="shaders\water.frag">
+    <None Include="shaders\waterShader.frag">
       <Filter>Files\Shaders</Filter>
     </None>
   </ItemGroup>
