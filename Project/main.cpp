@@ -144,6 +144,7 @@ void processMovement() {
 		myCamera.move(gps::MOVE_RIGHT, actualMovementSpeed);
         
 	}
+
     if (pressedKeys[GLFW_KEY_G]) {
         glfwSetWindowMonitor(myWindow.getWindow(), nullptr, 100, 100, verticalWindowed, horizontalWindowed, GLFW_DONT_CARE);
     }
@@ -151,13 +152,31 @@ void processMovement() {
         glfwSetWindowMonitor(myWindow.getWindow(), glfwGetPrimaryMonitor(), 0, 0, verticalMonitor, horizontalMonitor, GLFW_DONT_CARE);
     }
 
-    if (pressedKeys[GLFW_KEY_K])
-    {
+    if (pressedKeys[GLFW_KEY_K]) {
+        myCamera.setWalkingVar(true);
+    }
+    if (pressedKeys[GLFW_KEY_L]) {
         myCamera.setWalkingVar(false);
     }
-    if (pressedKeys[GLFW_KEY_L])
+
+    if (pressedKeys[GLFW_KEY_EQUAL])
     {
-        myCamera.setWalkingVar(true);
+        GLfloat newValue = objectManager.getDirectionalLightIntensity() + 0.01f* deltaTime.getTranslationSpeed();
+        if (newValue > 2.0f)
+        {
+            newValue = objectManager.getDirectionalLightIntensity();
+        }
+        objectManager.setDirectionalLightIntensity(newValue);
+    }
+    if (pressedKeys[GLFW_KEY_MINUS])
+    {
+
+        GLfloat newValue = objectManager.getDirectionalLightIntensity() - 0.01f* deltaTime.getTranslationSpeed();
+        if (newValue < 0.0f)
+        {
+            newValue = objectManager.getDirectionalLightIntensity();
+        }
+        objectManager.setDirectionalLightIntensity(newValue);
     }
 
     // line view
@@ -217,6 +236,7 @@ int main(int argc, const char * argv[]) {
     std::cout << "https://pixabay.com/ \n";
     std::cout << "https://freesound.org/ \n";
     std::cout << "\n\n            Textures\n\n";
+    std::cout << "https://www.solarsystemscope.com/textures/\n";
     std::cout << "Creation of texture maps: https://cpetry.github.io/NormalMap-Online/ \n";
     std::cout << "\n\n\n";
 

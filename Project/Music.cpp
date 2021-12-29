@@ -8,9 +8,18 @@ namespace gps {
         cityAmbiance = SoundEngine->play2D("Music/city_humming.wav", true, false, true);
         cityAmbiance->setVolume(0.1);
 
-        waterFountainSound = SoundEngine->play3D("Music/fountain.mp3", vec3df(0, 0, 80), true, false, true); //position at the fountain
-        waterFountainSound->setVolume(1);
-        waterFountainSound->setMinDistance(10.0f);
+        for (int i = 0; i < WATER_NUMBER; i++)
+        {
+            ISound* genericSound;
+            genericSound = SoundEngine->play3D("Music/fountain.mp3", vec3df(0, 0, 80), true, false, true); //position at the fountain
+            genericSound->setVolume(1);
+            genericSound->setMinDistance(10.0f);
+            waterSounds.push_back(genericSound);
+        }
+        waterSounds[1]->setPosition(vec3df(85.0f, -2.8f, 25.0f));
+        waterSounds[1]->setMinDistance(5.0f);
+        waterSounds[2]->setPosition(vec3df(85.0f, -2.8f, 45.0f));
+        waterSounds[2]->setMinDistance(5.0f);
 
         wineMerchant = SoundEngine->play3D("Music/Wine.mp3", vec3df(80, 0, 80), true, false, true);
         wineMerchant->setVolume(1);
