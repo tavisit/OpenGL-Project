@@ -35,7 +35,7 @@ GLenum glCheckError_(const char* file, int line)
 namespace gps {
     void ObjectManager::renderScene(gps::Window myWindow, gps::Camera myCamera, DeltaTime deltaTime)
     {
-        changeDynamicComponents(deltaTime);
+        changeDynamicComponents(deltaTime); 
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         depthMapShader.useShaderProgram();
@@ -44,7 +44,6 @@ namespace gps {
             1,
             GL_FALSE,
             glm::value_ptr(computeLightSpaceTrMatrix(myWindow,myCamera)));
-
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -80,7 +79,6 @@ namespace gps {
         {
             streetLampsObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &streetLamps, &depthMapShader, false);
         }
-      
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         mainShader.useShaderProgram();
@@ -148,13 +146,13 @@ namespace gps {
 
         spotLights[0].spotLightDirection = myCamera.getCameraFrontDirection();
         spotLights[0].spotLightPosition = myCamera.getCameraPosition();
+
         for (int i = 0; i < SPOT_LIGHTS_MAX; i++)
         {
             glUniform1i(i * 3+ spotLightLocationBegin, spotLights[i].spotinit);
             glUniform3fv(i * 3 + 1 + spotLightLocationBegin, 1, glm::value_ptr(spotLights[i].spotLightDirection));
             glUniform3fv(i * 3 + 2 + spotLightLocationBegin, 1, glm::value_ptr(spotLights[i].spotLightPosition));
         }
-
 
         waterShader.useShaderProgram();
         glUniformMatrix4fv(glGetUniformLocation(waterShader.shaderProgram, "lightSpaceTrMatrix"), 1, GL_FALSE, glm::value_ptr(computeLightSpaceTrMatrix(myWindow, myCamera)));
@@ -374,12 +372,12 @@ namespace gps {
         for (int index = 0; index < LIGHT_MAX/2; index++)
         {
             streetLampsObjects[index].translateAbsolute(glm::vec3((index+1)*50, -10.0f, 60.0f));
-            pointLights[index].location = glm::vec3((index + 1) * 57, 0.0f, 80);
+            pointLights[index].location = glm::vec3(glm::vec3((index + 1) * 40, 2.0f, 55.0f));
         }
         for (int index = LIGHT_MAX / 2; index < LIGHT_MAX; index++)
         {
-             streetLampsObjects[index].translateAbsolute(glm::vec3((index + 1 - LIGHT_MAX / 2) * (- 50), -10.0f, 60.0f));
-            pointLights[index].location = glm::vec3((index + 1 - LIGHT_MAX / 2) * (-57), 0.0f, 80);
+            streetLampsObjects[index].translateAbsolute(glm::vec3((index + 1 - LIGHT_MAX / 2) * (- 50), -10.0f, 60.0f));
+            pointLights[index].location = glm::vec3((index + 1 - LIGHT_MAX / 2) * (-40), 2.0f, 55.0f);
         }
     }
     void ObjectManager::resizeWindow(gps::Window myWindow)
@@ -487,10 +485,10 @@ namespace gps {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
             SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        float borderColor[] = { 1.0,1.0,1.0,1.0 };
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); 
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
         glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
         //attach texture to FBO

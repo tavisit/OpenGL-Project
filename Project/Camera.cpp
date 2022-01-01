@@ -35,16 +35,15 @@ namespace gps {
         case MOVE_LEFT:
             potentialNewPosition -= this->cameraRightDirection * speed;
             break;
-        }
-
-        if (potentialNewPosition.z < cityBorders[0] || potentialNewPosition.z > cityBorders[1])
-            return;
-        if (potentialNewPosition.x < cityBorders[2] || potentialNewPosition.x > cityBorders[3])
-            return;
-        
+        }        
         // keep the camera on street level
         if (this->walking)
         {
+            if (potentialNewPosition.z < cityBorders[0] || potentialNewPosition.z > cityBorders[1])
+                return;
+            if (potentialNewPosition.x < cityBorders[2] || potentialNewPosition.x > cityBorders[3])
+                return;
+
             this->cameraPosition.x = potentialNewPosition.x;
             this->cameraPosition.z = potentialNewPosition.z;
         }

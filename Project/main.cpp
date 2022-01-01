@@ -238,6 +238,8 @@ void initOpenGLState() {
     glEnable(GL_CULL_FACE); // cull face
     glCullFace(GL_BACK); // cull back face
     glFrontFace(GL_CCW); // GL_CCW for counter clock-wise
+    glEnable(GL_FRAMEBUFFER_SRGB); // Gamma correction
+        
 }
 void renderScene() {
     objectManager.renderScene(myWindow, myCamera, deltaTime);

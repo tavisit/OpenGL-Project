@@ -69,8 +69,8 @@ namespace gps {
 
         #define FOV 45.0f
 
-        const unsigned int SHADOW_WIDTH = 1024 * 32;
-        const unsigned int SHADOW_HEIGHT = 1024 * 32;
+        const unsigned int SHADOW_WIDTH = 1024* 16 * 1.77;
+        const unsigned int SHADOW_HEIGHT = 1024 * 16;
 
         #define WALLS_NUMBER 12
         #define GATES_NUMBER 4
@@ -123,7 +123,7 @@ namespace gps {
             glm::vec3 spotLightDirection = glm::vec3(0.0f);;
             glm::vec3 spotLightPosition = glm::vec3(0.0f);
         };
-        int spotLightLocationBegin = 60;
+        int spotLightLocationBegin = 120;
         SPOT_LIGHT spotLights[SPOT_LIGHTS_MAX];
     };
 }
