@@ -4,6 +4,7 @@
 #include "Constants.h"
 #include "Model3D.hpp"
 #include "Shader.hpp"
+#include "Camera.hpp"
 #include <vector>
 #include <iostream>
 #include <string>
@@ -38,6 +39,7 @@ namespace gps {
         glm::vec3 location;
         glm::vec3 rotation;
         glm::vec3 scale;
+
         float alpha = 1.0f;
     };
 }

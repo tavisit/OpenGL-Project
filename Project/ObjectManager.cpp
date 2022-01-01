@@ -105,6 +105,8 @@ namespace gps {
         glBindTexture(GL_TEXTURE_2D, depthMapTexture);
         glUniform1i(glGetUniformLocation(mainShader.shaderProgram, "shadowMap"), 3);
 
+
+
         waterFountainObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterFountain, &mainShader, true);
         forumObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &forum, &mainShader, true);
         for (int index = 0; index < BUILDINGS_NUMBER; index++)
@@ -144,6 +146,16 @@ namespace gps {
         directionalLightColorLoc = glGetUniformLocation(mainShader.shaderProgram, "directionalLightColor");
         glUniform3fv(directionalLightColorLoc, 1, glm::value_ptr(directionalLightColor));
 
+        spotLights[0].spotLightDirection = myCamera.getCameraFrontDirection();
+        spotLights[0].spotLightPosition = myCamera.getCameraPosition();
+        for (int i = 0; i < SPOT_LIGHTS_MAX; i++)
+        {
+            glUniform1i(i * 3+ spotLightLocationBegin, spotLights[i].spotinit);
+            glUniform3fv(i * 3 + 1 + spotLightLocationBegin, 1, glm::value_ptr(spotLights[i].spotLightDirection));
+            glUniform3fv(i * 3 + 2 + spotLightLocationBegin, 1, glm::value_ptr(spotLights[i].spotLightPosition));
+        }
+
+
         waterShader.useShaderProgram();
         glUniformMatrix4fv(glGetUniformLocation(waterShader.shaderProgram, "lightSpaceTrMatrix"), 1, GL_FALSE, glm::value_ptr(computeLightSpaceTrMatrix(myWindow, myCamera)));
         view = myCamera.getViewMatrix();
@@ -160,6 +172,12 @@ namespace gps {
         for (int index = 1; index < WATER_NUMBER; index++)
         {
             waterPoolsObject[index].drawObject(glGetUniformLocation(waterShader.shaderProgram, "normalMatrix"), view, &waterPool, &waterShader, true);
+        }
+        for (int i = 0; i < SPOT_LIGHTS_MAX; i++)
+        {
+            glUniform1i(i * 3 + spotLightLocationBegin, spotLights[i].spotinit);
+            glUniform3fv(i * 3 + 1 + spotLightLocationBegin, 1, glm::value_ptr(spotLights[i].spotLightDirection));
+            glUniform3fv(i * 3 + 2 + spotLightLocationBegin, 1, glm::value_ptr(spotLights[i].spotLightPosition));
         }
         for (int i = 0; i < LIGHT_MAX; i++)
         {
@@ -246,20 +264,20 @@ namespace gps {
         for (int index = 0; index < STREETS_NUMBER / 4; index++)
         {
             streetsObjects[index].translateDistance( 3, gps::MOVE_DOWN, 1);
-            streetsObjects[index].scaleAbsolute( glm::vec3(2));
+            streetsObjects[index].scaleDistance( 2);
             streetsObjects[index].translateDistance( index * 12 * 2, gps::MOVE_FORWARD, 1);
         }
         for (int index = STREETS_NUMBER / 4; index < STREETS_NUMBER / 2; index++)
         {
             streetsObjects[index].translateDistance( 3, MOVE_DOWN, 1);
-            streetsObjects[index].scaleAbsolute( glm::vec3(2));
+            streetsObjects[index].scaleDistance(2);
             streetsObjects[index].translateDistance( (index - STREETS_NUMBER / 4 + 1) * 12 * 2, gps::MOVE_BACKWARD, 1);
         }
         for (int index = STREETS_NUMBER / 2; index < 3 * STREETS_NUMBER / 4; index++)
         {
             streetsObjects[index].translateDistance( 3, gps::MOVE_DOWN, 1);
             streetsObjects[index].translateDistance( 80, gps::MOVE_BACKWARD, 1);
-            streetsObjects[index].scaleAbsolute( glm::vec3(2));
+            streetsObjects[index].scaleDistance(2);
             streetsObjects[index].rotationAbsolute( glm::vec3(0.0f, 90.0f, 0.0f));
             streetsObjects[index].translateDistance( (index - STREETS_NUMBER / 2) * 12 * 2, gps::MOVE_RIGHT, 1);
         }
@@ -267,7 +285,7 @@ namespace gps {
         {
             streetsObjects[index].translateDistance( 3, gps::MOVE_DOWN, 1);
             streetsObjects[index].translateDistance( 80, gps::MOVE_BACKWARD, 1);
-            streetsObjects[index].scaleAbsolute( glm::vec3(2));
+            streetsObjects[index].scaleDistance(2);
             streetsObjects[index].rotationAbsolute( glm::vec3(0.0f, 90.0f, 0.0f));
             streetsObjects[index].translateDistance( (index - 3 * STREETS_NUMBER / 4 + 1) * 12 * 2, gps::MOVE_LEFT, 1);
         }
@@ -276,7 +294,7 @@ namespace gps {
         {
             
             grassObjects[index].translateDistance( 3.05, gps::MOVE_DOWN, 1);
-            grassObjects[index].scaleAbsolute( glm::vec3(8.0f, 8.0f, 8.0f));
+            grassObjects[index].scaleDistance(8);
         }
         int index = 0;
         for (int indexc = 0; indexc < 10; indexc++)
@@ -291,7 +309,7 @@ namespace gps {
         int hideElevation = 40;
         for (int index = 0; index < BUILDINGS_NUMBER; index++)
         {
-            insulaRomanaObjects[index].scaleAbsolute(glm::vec3(30.0f));
+            insulaRomanaObjects[index].scaleDistance(30);
             insulaRomanaObjects[index].translateDistance(hideElevation, gps::MOVE_DOWN, 1);
             // it takes 26(long face) * height * 30(short face)
         }
@@ -343,7 +361,7 @@ namespace gps {
             insulaIndex++;
         }
 
-        forumObject.scaleAbsolute(glm::vec3(4.0f));
+        forumObject.scaleDistance(4);
         forumObject.translateDistance(2.5, gps::MOVE_DOWN, 1);
         forumObject.translateAbsolute(glm::vec3(65.0f,forumObject.getLocation().y,35.0f));
 
@@ -366,7 +384,7 @@ namespace gps {
     }
     void ObjectManager::resizeWindow(gps::Window myWindow)
     {
-        projection = glm::perspective(glm::radians(45.0f), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
+        projection = glm::perspective(glm::radians(FOV), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
 
         mainShader.useShaderProgram();
         GLint projLoc = glGetUniformLocation(mainShader.shaderProgram, "projection");
@@ -387,7 +405,7 @@ namespace gps {
     }
     glm::mat4 ObjectManager::getProjection(gps::Window myWindow)
     {
-        projection = glm::perspective(glm::radians(45.0f), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
+        projection = glm::perspective(glm::radians(FOV), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
         return projection;
     }
     void ObjectManager::setDirectionalLightIntensity(GLfloat intensity)
@@ -440,6 +458,24 @@ namespace gps {
         return this->directionalLightIntensity;
     }
 
+    void ObjectManager::setAutoDay(bool autoDay)
+    {
+        this->autoDay = autoDay;
+    }
+
+    bool ObjectManager::getAutoDay()
+    {
+        return autoDay;
+    }
+
+    void ObjectManager::setSpotLight(int index,int value)
+    {
+        if (index < SPOT_LIGHTS_MAX)
+        {
+            this->spotLights[index].spotinit = value;
+        }
+    }
+
     void ObjectManager::initFBO()
     {
         //generate FBO ID
@@ -482,6 +518,7 @@ namespace gps {
         {
             InGameObject genericObject;
             wallObjects.push_back(genericObject);
+
         }
         for (int i = 0; i < GATES_NUMBER; i++)
         {
@@ -524,7 +561,7 @@ namespace gps {
     void ObjectManager::initUniforms(gps::Window myWindow)
     {
 
-        projection = glm::perspective(glm::radians(45.0f), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
+        projection = glm::perspective(glm::radians(FOV), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
         // set light color
         setDirectionalLightIntensity(0.4f);
         mainShader.useShaderProgram();
@@ -539,8 +576,25 @@ namespace gps {
         directionalLightColorLoc = glGetUniformLocation(mainShader.shaderProgram, "directionalLightColor");
         glUniform3fv(directionalLightColorLoc, 1, glm::value_ptr(directionalLightColor));
 
+
+        for (int i = 0; i < SPOT_LIGHTS_MAX; i++)
+        {
+            glUniform1i(i * 3 + spotLightLocationBegin, spotLights[i].spotinit);
+            glUniform3fv(i * 3 + 1 + spotLightLocationBegin, 1, glm::value_ptr(spotLights[i].spotLightDirection));
+            glUniform3fv(i * 3 + 2 + spotLightLocationBegin, 1, glm::value_ptr(spotLights[i].spotLightPosition));
+        }
+
         waterShader.useShaderProgram();
         glUniformMatrix4fv(glGetUniformLocation(waterShader.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+
+         for (int i = 0; i < SPOT_LIGHTS_MAX; i++)
+        {
+            glUniform1i(i * 3 + spotLightLocationBegin, spotLights[i].spotinit);
+            glUniform3fv(i * 3 + 1 + spotLightLocationBegin, 1, glm::value_ptr(spotLights[i].spotLightDirection));
+            glUniform3fv(i * 3 + 2 + spotLightLocationBegin, 1, glm::value_ptr(spotLights[i].spotLightPosition));
+        }
+
         for (int i = 0; i < LIGHT_MAX; i++)
         {
             glUniform3fv(i * 3, 1, glm::value_ptr(pointLights[i].location));
@@ -550,6 +604,8 @@ namespace gps {
         glUniform3fv(glGetUniformLocation(waterShader.shaderProgram, "directionalLightPosition"), 1, glm::value_ptr(directionalLightPosition));
         directionalLightColorLoc = glGetUniformLocation(waterShader.shaderProgram, "directionalLightColor");
         glUniform3fv(directionalLightColorLoc, 1, glm::value_ptr(directionalLightColor));
+
+        
     }
 
     glm::mat4 ObjectManager::computeLightSpaceTrMatrix(gps::Window myWindow, gps::Camera myCamera)
@@ -570,10 +626,19 @@ namespace gps {
 
         return lightProjection * lightView;
     }
+
     void ObjectManager::changeDynamicComponents(gps::DeltaTime deltaTime)
     {
-        float randomVariance = sin(glfwGetTime() * deltaTime.getDeltaTime());
+        if (autoDay)
+        {
+            if (directionalLightIntensity <= 0.0f)
+            {
+                directionalLightIntensity = 2.0f;
+            }
+            setDirectionalLightIntensity(directionalLightIntensity - 0.01f * deltaTime.getDeltaTime());
+        }
     }
+
     glm::vec3 ObjectManager::getSunPositionByIntensity(GLfloat intensity)
     {
         glm::vec3 newPosition;

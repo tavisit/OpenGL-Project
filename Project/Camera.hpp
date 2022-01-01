@@ -37,6 +37,7 @@ namespace gps {
 
         glm::vec3 lastWalkingPosition;
         bool walking;
+        int cityBorders[4] = { 2,158,-158,158 };
     };
     
 }

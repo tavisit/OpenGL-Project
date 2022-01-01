@@ -26,6 +26,12 @@ namespace gps {
 
         void setDirectionalLightIntensity(GLfloat intensity);
         GLfloat getDirectionalLightIntensity();
+
+        void setAutoDay(bool autoDay);
+        bool getAutoDay();
+
+        void setSpotLight(int index,int value);
+
     private:
 
         void initFBO();
@@ -52,6 +58,7 @@ namespace gps {
         glm::mat3 normalMatrix;
         glm::mat3 lightDirMatrix;
 
+        bool autoDay = true;
         gps::Model3D directionalLightSphere;
         gps::InGameObject directionalLightSphereObject;
         glm::vec3 directionalLightPosition;
@@ -60,6 +67,7 @@ namespace gps {
         GLuint directionalLightColorLoc;
         GLfloat directionalLightIntensity = 1.0f;
 
+        #define FOV 45.0f
 
         const unsigned int SHADOW_WIDTH = 1024 * 32;
         const unsigned int SHADOW_HEIGHT = 1024 * 32;
@@ -67,8 +75,8 @@ namespace gps {
         #define WALLS_NUMBER 12
         #define GATES_NUMBER 4
         #define STREETS_NUMBER 40
-        #define GRASS_NUMBER 220
-        #define BUILDINGS_NUMBER 40
+        #define GRASS_NUMBER 210
+        #define BUILDINGS_NUMBER 30
         #define WATER_NUMBER 3
 
         gps::Model3D grass;
@@ -95,18 +103,28 @@ namespace gps {
         Colors colorParser;
 
         // point lights
+        #define LIGHT_MAX 6
         struct POINT_LIGHT
         {
-            glm::vec3 location = glm::vec3(3.0f);
+            glm::vec3 location = glm::vec3(0.0f);
             glm::vec3 color = glm::vec3(1.0f);
             float intensity = 1.0f;
         };
-        #define LIGHT_MAX 6
         gps::Model3D streetLamps;
         POINT_LIGHT pointLights[LIGHT_MAX];
         GLuint pointLightLoc;
         GLuint pointLightColorLoc;
         GLuint pointLightIntensityLoc;
+
+        #define SPOT_LIGHTS_MAX 1
+        struct SPOT_LIGHT
+        {
+            int spotinit;
+            glm::vec3 spotLightDirection = glm::vec3(0.0f);;
+            glm::vec3 spotLightPosition = glm::vec3(0.0f);
+        };
+        int spotLightLocationBegin = 60;
+        SPOT_LIGHT spotLights[SPOT_LIGHTS_MAX];
     };
 }
 

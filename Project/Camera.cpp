@@ -37,6 +37,11 @@ namespace gps {
             break;
         }
 
+        if (potentialNewPosition.z < cityBorders[0] || potentialNewPosition.z > cityBorders[1])
+            return;
+        if (potentialNewPosition.x < cityBorders[2] || potentialNewPosition.x > cityBorders[3])
+            return;
+        
         // keep the camera on street level
         if (this->walking)
         {

@@ -11,15 +11,15 @@
 
 #include <iostream>
 
-int horizontalMonitor;
-int verticalMonitor;
+int horizontalMonitor = 1080;
+int verticalMonitor = 1920;
 int horizontalWindowed = 720;
 int verticalWindowed = 1280;
 // window
 gps::Window myWindow;
 // camera
 gps::Camera myCamera(
-    glm::vec3(0.0f, 0.5f, 5.0f),
+    glm::vec3(1.0f, 0.5f, 5.0f),
     glm::vec3(0.0f, 0.0f, 0.0f),
     glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -34,6 +34,8 @@ gps::SkyBox mySkyBox;
 gps::Shader skyboxShader;
 gps::DeltaTime deltaTime;
 gps::Music programMusic;
+bool nightTime = false;
+bool dayTime = false;
 void GetDesktopResolution(int& horizontal, int& vertical);
 
 void initSkyBoxShader()
@@ -49,12 +51,12 @@ void initSkyBoxShader()
 }
 void initFaces()
 {
-    faces.push_back("skybox/Variant1/posx.jpg");
-    faces.push_back("skybox/Variant1/negx.jpg");
-    faces.push_back("skybox/Variant1/posy.jpg");
-    faces.push_back("skybox/Variant1/negy.jpg");
-    faces.push_back("skybox/Variant1/posz.jpg");
-    faces.push_back("skybox/Variant1/negz.jpg");
+    faces.push_back("skybox/Variant2/posx.jpg");
+    faces.push_back("skybox/Variant2/negx.jpg");
+    faces.push_back("skybox/Variant2/posy.jpg");
+    faces.push_back("skybox/Variant2/negy.jpg");
+    faces.push_back("skybox/Variant2/posz.jpg");
+    faces.push_back("skybox/Variant2/negz.jpg");
 }
 
 void windowResizeCallback(GLFWwindow* window, int width, int height) {
@@ -159,24 +161,44 @@ void processMovement() {
         myCamera.setWalkingVar(false);
     }
 
+    if (pressedKeys[GLFW_KEY_N])
+    {
+        objectManager.setAutoDay(true);
+    }
+    if (pressedKeys[GLFW_KEY_M])
+    {
+        objectManager.setAutoDay(false);
+    }
+
     if (pressedKeys[GLFW_KEY_EQUAL])
     {
-        GLfloat newValue = objectManager.getDirectionalLightIntensity() + 0.01f* deltaTime.getTranslationSpeed();
-        if (newValue > 2.0f)
+        if (!objectManager.getAutoDay())
         {
-            newValue = objectManager.getDirectionalLightIntensity();
+            GLfloat newValue = objectManager.getDirectionalLightIntensity() + 0.05f * deltaTime.getTranslationSpeed();
+            if (newValue > 2.0f)
+            {
+                newValue = objectManager.getDirectionalLightIntensity();
+            }
+            objectManager.setDirectionalLightIntensity(newValue);
         }
-        objectManager.setDirectionalLightIntensity(newValue);
     }
     if (pressedKeys[GLFW_KEY_MINUS])
     {
-
-        GLfloat newValue = objectManager.getDirectionalLightIntensity() - 0.01f* deltaTime.getTranslationSpeed();
-        if (newValue < 0.0f)
+        if (!objectManager.getAutoDay())
         {
-            newValue = objectManager.getDirectionalLightIntensity();
+            GLfloat newValue = objectManager.getDirectionalLightIntensity() - 0.05f * deltaTime.getTranslationSpeed();
+            if (newValue < 0.0f)
+            {
+                newValue = objectManager.getDirectionalLightIntensity();
+            }
+            objectManager.setDirectionalLightIntensity(newValue);
         }
-        objectManager.setDirectionalLightIntensity(newValue);
+    }
+    if (pressedKeys[GLFW_KEY_1]) {
+        objectManager.setSpotLight(0,1);
+    }
+    if (pressedKeys[GLFW_KEY_2]) {
+        objectManager.setSpotLight(0,2);
     }
 
     // line view
@@ -224,11 +246,10 @@ void renderScene() {
 
 void cleanup() {
     myWindow.Delete();
-    programMusic.~Music();
     //cleanup code for your own data
 }
-
-int main(int argc, const char * argv[]) {
+void writeCredits()
+{
     std::cout << "\n\n\n            Credits\n\n";
     std::cout << "\n\n            Models\n\n";
     std::cout << "Low Poly Roman Insula 1 (WIP) (https://skfb.ly/6WEtF) by lexferreira89 is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).\n";
@@ -238,11 +259,26 @@ int main(int argc, const char * argv[]) {
     std::cout << "\n\n            Textures\n\n";
     std::cout << "https://www.solarsystemscope.com/textures/\n";
     std::cout << "Creation of texture maps: https://cpetry.github.io/NormalMap-Online/ \n";
+    std::cout << "\n\nControls\n";
+    std::cout << "- WASD for movement\n";
+    std::cout << "- Mouse to look around\n";
+    std::cout << "- G windowed mode\n";
+    std::cout << "- F fullscreen mode\n";
+    std::cout << "- K walking mode\n";
+    std::cout << "- L fly mode\n";
+    std::cout << "- N autoday on\n";
+    std::cout << "- M autoday off\n";
+    std::cout << "- - decrease time of day\n";
+    std::cout << "- + increase time of day\n";
+    std::cout << "- 1 turn on flashlight\n";
+    std::cout << "- 2 turn off flashlight\n";
+    std::cout << "- 7 GL_LINE vision mode\n";
+    std::cout << "- 8 GL_POINT vision mode\n";
+    std::cout << "- 9 GL_FILL vision mode\n";
     std::cout << "\n\n\n";
-
-
-    GetDesktopResolution(horizontalMonitor, verticalMonitor);
-
+}
+int main(int argc, const char * argv[]) {
+    
     try {
         initOpenGLWindow();
     } catch (const std::exception& e) {
@@ -257,11 +293,11 @@ int main(int argc, const char * argv[]) {
     initFaces();
     initSkyBoxShader();
     deltaTime.initializeDeltaTime();
+    writeCredits();
 
 	// application loop
 	while (!glfwWindowShouldClose(myWindow.getWindow())) {
         deltaTime.calculateDeltaTime(true);
-
         programMusic.update(myCamera);
 
         processMovement();
