@@ -1,10 +1,10 @@
 #version 430 core
 in vec3 normal;
-in vec4 fragPosEye;
-in vec4 fragPosLightSpace;
-in vec2 fragTexCoords;
+in vec4 fPosEye;
+in vec4 fPosLightSpace;
+in vec2 fTexCoords;
 
-in vec3 fragPos;
+in vec3 fPos;
 
 out vec4 fColor;
 
@@ -20,7 +20,7 @@ uniform sampler2D shadowMap;
 
 float ambientDirectionalStrength = 0.5f;
 float specularDirectionalStrength = 0.7f;
-float shininessDirectional = 128.0f;
+float shininessDirectional = 16.0f;
 
 uniform	vec3 directionalLightColor;
 uniform	vec3 directionalLightPosition;
@@ -40,8 +40,8 @@ struct POINT_LIGHT
 layout(location = 0) uniform POINT_LIGHT pointLights[LIGHT_MAX]; // locations [0, LIGHT_MAX*3)
 
 float ambientPointStrength = 0.7f;
-float specularPointStrength = 0.7f;
-float shininessPoint = 64.0f;
+float specularPointStrength = 0.5f;
+float shininessPoint = 16.0f;
 
 float pointConstant = 1.0f;
 float pointLinear = 0.0225f;
@@ -53,11 +53,11 @@ float pointQuadratic = 0.0375;
 float spotConstant = 1.0f;
 float spotLinear = 0.1f;
 float spotQuadratic = 0.02f;
-vec3 spotLightColor = vec3(10,10,10);
+vec3 spotLightColor = vec3(255,255,255);
 
 float ambientSpotStrength = 0.5f;
-float specularSpotStrength = 0.7f;
-float shininessSpot = 128.0f;
+float specularSpotStrength = 0.5f;
+float shininessSpot = 8.0f;
 
 float spotlightCutOff = cos(radians(10));
 float spotlightOuterCutOff =  cos(radians(30));
@@ -81,27 +81,30 @@ vec3 viewDir;
 vec3 directionalLightDir;
 vec3 currentPointLightPos;
 vec3 currentPointLightColor;
+vec3 ambient;
+vec3 diffuse;
+vec3 specular;
 
 ////////////////////////////////////////////////////////////
 // point light computation
 vec3 CalcPointLight(vec3 currentPointLightPos,vec3 currentPointLightColor)
 {
-	vec3 pointLightDir = normalize(currentPointLightPos - fragPos);
+	vec3 pointLightDir = normalize(currentPointLightPos - fPos);
     vec3 lightDirTemp = normalize(pointLightDir);
 	// Blinn-Phong shading model
 	vec3 halfVector = normalize(lightDirTemp + viewDir);
 
 	float diff = max(dot(Normal, lightDirTemp), 0.0);
 	float spec = pow(max(dot(viewDir, halfVector), 0.0), shininessPoint);
-	float distance    = length(currentPointLightPos - fragPos);
+	float distance    = length(currentPointLightPos - fPos);
 	float attenuation = pointConstant + pointLinear * distance + pointQuadratic * (distance * distance); 
 
 	vec3 ambient = ambientPointStrength * currentPointLightColor ;
 	vec3 diffuse = ambientPointStrength *diff * currentPointLightColor;
 	vec3 specular = shininessPoint * spec * currentPointLightColor;
-	ambient *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	diffuse *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	specular *= vec3(pow(texture(specularTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
+	ambient *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	diffuse *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	specular *= vec3(pow(texture(specularTexture, fTexCoords).rgb, vec3(1.0/gamma)));
 
 	return (ambient + diffuse + specular) / attenuation;
 }
@@ -117,25 +120,25 @@ vec3 CalcDirLight()
     float spec = pow(max(dot(viewDir, halfVector), 0.0), shininessDirectional);
 
     // combine results
-    vec3 ambient = ambientDirectionalStrength * directionalLightColor;
-	vec3 diffuse = ambientDirectionalStrength * diff * directionalLightColor;
-	vec3 specular = specularDirectionalStrength * spec * directionalLightColor;
-	ambient *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	diffuse *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	specular *= vec3(pow(texture(specularTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
+    ambient = ambientDirectionalStrength * directionalLightColor;
+	diffuse = ambientDirectionalStrength * diff * directionalLightColor;
+	specular = specularDirectionalStrength * spec * directionalLightColor;
+	ambient *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	diffuse *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	specular *= vec3(pow(texture(specularTexture, fTexCoords).rgb, vec3(1.0/gamma)));
 
     return (ambient + diffuse + specular);
 }  
 ////////////////////////////////////////////////////////////
 // spot light computation
 vec3 computeLightSpotComponents(vec3 spotLightPosition, vec3 spotLightDirection) {
-	vec3 lightDirTemp = normalize(spotLightPosition - fragPos);
+	vec3 lightDirTemp = normalize(spotLightPosition - fPos);
 	// Blinn-Phong shading model
 	vec3 halfVector = normalize(lightDirTemp + viewDir);
 
 	float diff = max(dot(normal, lightDirTemp), 0.0f);
 	float spec = pow(max(dot(Normal, halfVector), 0.0f), shininessSpot);
-	float distance = length(spotLightPosition - fragPos);
+	float distance = length(spotLightPosition - fPos);
 	float attenuation = 1.0f / (spotConstant + spotLinear * distance + spotQuadratic * distance * distance);
 
 	float theta = dot(lightDirTemp, normalize(-spotLightDirection));
@@ -143,11 +146,12 @@ vec3 computeLightSpotComponents(vec3 spotLightPosition, vec3 spotLightDirection)
 	float intensity = clamp((theta - spotlightOuterCutOff )/epsilon, 0.0, 1.0);
 
 	vec3 ambient = spotLightColor * ambientSpotStrength * attenuation * intensity;
-	vec3 diffuse = spotLightColor * ambientSpotStrength * diff *attenuation * intensity;
-	vec3 specular = spotLightColor * specularSpotStrength * spec *attenuation * intensity;
-	ambient *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	diffuse *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	specular *= vec3(pow(texture(specularTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
+	vec3 diffuse = spotLightColor * ambientSpotStrength * diff * attenuation * intensity;
+	vec3 specular = spotLightColor * specularSpotStrength * spec * attenuation * intensity;
+
+	ambient *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	diffuse *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	specular *= vec3(pow(texture(specularTexture, fTexCoords).rgb, vec3(1.0/gamma)));
 	
 	return ambient + diffuse + specular;
 }
@@ -156,7 +160,7 @@ vec3 computeLightSpotComponents(vec3 spotLightPosition, vec3 spotLightDirection)
 float computeShadow()
 {	
 	// perform perspective divide
-    vec3 normalizedCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    vec3 normalizedCoords = fPosLightSpace.xyz / fPosLightSpace.w;
     if(normalizedCoords.z > 1.0f)
         return 1.0f;  
 		
@@ -185,8 +189,8 @@ float computeShadow()
 float computeFog()
 {
 
- float fragmentDistance = length(fragPosEye);
- float fogFactor = exp(-pow(fragmentDistance * 0.005f, 2));
+ float fmentDistance = length(fPosEye);
+ float fogFactor = exp(-pow(fmentDistance * 0.005f, 2));
 
  return clamp(fogFactor, 0.0f, 1.0f);
 }
@@ -195,10 +199,10 @@ float computeFog()
 void main() 
 {
 	////////////////////////////////////////////////////////////
-	directionalLightDir = normalize(directionalLightPosition - fragPos);
-    vec3 color = pow(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)).rgb, vec3(1.0/gamma));
+	directionalLightDir = normalize(directionalLightPosition - fPos);
+    vec3 color = texture(diffuseTexture, fTexCoords).rgb;
     Normal = normalize(normal);
-    viewDir = normalize(fragPosEye.xyz - fragPos);
+    viewDir = normalize(fPosEye.xyz - fPos);
 	
 	////////////////////////////////////////////////////////////
 	vec3 totalLight = CalcDirLight();
@@ -206,14 +210,14 @@ void main()
 	float distance = 1000;
 	int lightMinIndex = 0;
 
-	// For all lights, compute the light effect on the fragment
+	// For all lights, compute the light effect on the fment
 	for(int i=0;i<LIGHT_MAX;i++)
 	{
-		vec3 vectorToLight = normalize(pointLights[i].location - fragPos);
+		vec3 vectorToLight = normalize(pointLights[i].location - fPos);
 
 		if(dot(vectorToLight,Normal)>=0.0f)
 		{
-			float currentDistance = length(pointLights[i].location - fragPos);
+			float currentDistance = length(pointLights[i].location - fPos);
 			if(currentDistance<distance)
 			{
 				distance = currentDistance;
@@ -245,25 +249,12 @@ void main()
 	}	
 
 	////////////////////////////////////////////////////////////
-    vec3 lightDirTemp = normalize(directionalLightDir);
-    float diff = max(dot(Normal, lightDirTemp), 0.0);
-    vec3 reflectDir = reflect(-lightDirTemp, Normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininessDirectional);
-	vec3 ambient = ambientDirectionalStrength * directionalLightColor;
-	vec3 diffuse = ambientDirectionalStrength * diff * directionalLightColor;
-	vec3 specular = specularDirectionalStrength * spec * directionalLightColor;
-
-	ambient *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	diffuse *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	specular *= vec3(pow(texture(specularTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	////////////////////////////////////////////////////////////
-
 	vec3 shadowColor = (ambient + shadow * (diffuse + specular)) * color;   
     
 	////////////////////////////////////////////////////////////
 	// Compute the fog factor
 	float fogFactor = computeFog();
-	vec3 fogColor = vec3(0.5f, 0.5f, 0.5f);
+	vec3 fogColor = vec3(0.3f, 0.3f, 0.3f);
 	////////////////////////////////////////////////////////////
 
 	fColor = vec4(mix(fogColor, min(shadowColor * totalLight, vec3(1.0f)), fogFactor),alpha);

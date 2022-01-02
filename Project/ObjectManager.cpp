@@ -368,7 +368,7 @@ namespace gps {
 
         for (int index = 0; index < LIGHT_MAX; index++)
         {
-            pointLights[index].color = colorParser.convertFromEnumToVector(colorParser.LIGHT_ORANGE);
+            pointLights[index].color = colorParser.convertFromEnumToVector(colorParser.ORANGE);
             pointLights[index].intensity = 0.7f;
         }
         for (int index = 0; index < LIGHT_MAX/2; index++)

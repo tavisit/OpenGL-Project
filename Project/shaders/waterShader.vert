@@ -6,11 +6,11 @@ layout(location=1) in vec3 vNormal;
 layout(location=2) in vec2 vTexCoords;
 
 out vec3 normal;
-out vec4 fragPosEye;
-out vec4 fragPosLightSpace;
-out vec2 fragTexCoords;
+out vec4 fPosEye;
+out vec4 fPosLightSpace;
+out vec2 fTexCoords;
 
-out vec3 fragPos;
+out vec3 fPos;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -60,10 +60,10 @@ void main()
 	newPosition.y = newPosition.y  + sin(disp + uv.y)/50.0f;
 
 	//compute eye space coordinates
-	fragPosEye = view * model * vec4(newPosition, 1.0f);
+	fPosEye = view * model * vec4(newPosition, 1.0f);
 	normal = transpose(inverse(mat3(model))) * vNormal ;
-	fragPos = vec3(model* vec4(newPosition,1.0f));
-	fragTexCoords = vTexCoords;
-	fragPosLightSpace = lightSpaceTrMatrix * model * vec4(newPosition, 1.0f);
+	fPos = vec3(model* vec4(newPosition,1.0f));
+	fTexCoords = vTexCoords;
+	fPosLightSpace = lightSpaceTrMatrix * model * vec4(newPosition, 1.0f);
 	gl_Position = projection * view * model * vec4(newPosition, 1.0f);
 }
