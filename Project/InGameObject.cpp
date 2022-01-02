@@ -108,27 +108,35 @@ namespace gps {
         this->scale = scale;
         objectChanged();
     }
-    void InGameObject::drawObject(GLuint normalMatrixLoc,glm::mat4 view, gps::Model3D* model3D, gps::Shader* shader, bool calculateNormals)
+    void InGameObject::drawObject(glm::mat4 view, gps::Model3D* model3D, gps::Shader* shader)
     {
         if (alpha != 1.0f)
         {
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         }
+        
         shader->useShaderProgram();
-        glUniformMatrix4fv(glGetUniformLocation(shader->shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        if (calculateNormals)
-        {
 
-            glUniform1f(glGetUniformLocation(shader->shaderProgram, "alpha"), alpha);
-            glm::mat3 normalMatrix = glm::mat3(glm::inverseTranspose(view * model));
-            glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, glm::value_ptr(normalMatrix));
-        }
+        glUniformMatrix4fv(glGetUniformLocation(shader->shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniform1f(glGetUniformLocation(shader->shaderProgram, "alpha"), alpha);
+
+        glm::mat3 normalMatrix = glm::mat3(glm::inverseTranspose(view * model));
+        glUniformMatrix3fv(glGetUniformLocation(shader->shaderProgram, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
+        
         model3D->Draw(*shader);
+
         if (alpha != 1.0f)
         {
             glDisable(GL_BLEND);
         }   
+    }
+    void InGameObject::drawShadow(gps::Model3D* model3D, gps::Shader* shader)
+    {
+
+        shader->useShaderProgram();
+        glUniformMatrix4fv(glGetUniformLocation(shader->shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        model3D->Draw(*shader);
     }
     void InGameObject::setAlpha(float alpha)
     {

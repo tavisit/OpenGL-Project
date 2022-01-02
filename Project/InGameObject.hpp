@@ -97,9 +97,16 @@ namespace gps {
         /// <param name="normalMatrixLoc">normal matrix location</param>
         /// <param name="view">View matrix</param>
         /// <param name="model3D">3D model that will be used</param>
-        /// <param name="shader">The shader that is used (color or shadow map)</param>
+        /// <param name="shader">The shader that is used</param>
         /// <param name="calculateNormals">Boolean that dictates if it needs to calculate the normals</param>
-        void drawObject(GLuint normalMatrixLoc, glm::mat4 view, gps::Model3D* model3D, gps::Shader* shader, bool calculateNormals);
+        void drawObject(glm::mat4 view, gps::Model3D* model3D, gps::Shader* shader);
+
+        /// <summary>
+        /// Render the object's shadow
+        /// </summary>
+        /// <param name="model3D">3D model that will be used</param>
+        /// <param name="shader">The shader that is used by the shadow map</param>
+        void drawShadow(gps::Model3D* model3D, gps::Shader* shader);
         
         /// <summary>
         /// Setter for the alpha parameter

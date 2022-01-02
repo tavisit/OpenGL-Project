@@ -160,6 +160,7 @@ namespace gps {
         glm::mat4 projection;
         glm::mat3 normalMatrix;
         glm::mat3 lightDirMatrix;
+        glm::mat4 lightSpaceTrMatrix;
 
         ////////////////////////////////////////////////////////////////
         // Directional variables

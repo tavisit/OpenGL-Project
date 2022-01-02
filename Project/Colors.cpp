@@ -7,7 +7,7 @@ glm::vec3 gps::Colors::convertFromRGBToVector(glm::vec3 rgb)
 
 glm::vec3 gps::Colors::convertFromHEXToVector(std::string hexValue)
 {
-    float r, g, b;
+    double r, g, b;
     std::istringstream converter(hexValue);
     unsigned int value;
     converter >> std::hex >> value;
@@ -20,7 +20,6 @@ glm::vec3 gps::Colors::convertFromHEXToVector(std::string hexValue)
 
 glm::vec3 gps::Colors::convertFromEnumToVector(COLORS color)
 {
-    glm::vec3 returnValue;
     switch (color)
     {
     case gps::Colors::WHITE:
@@ -45,6 +44,7 @@ glm::vec3 gps::Colors::convertFromEnumToVector(COLORS color)
         return convertFromRGBToVector(glm::vec3(239, 135, 20));
         break;
     default:
+        return glm::vec3(0.0f, 0.0f, 0.0f);
         break;
     }
 }

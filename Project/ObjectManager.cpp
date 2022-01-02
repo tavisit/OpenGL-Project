@@ -36,6 +36,8 @@ namespace gps {
     void ObjectManager::renderScene(gps::Window myWindow, gps::Camera myCamera, gps::DeltaTime deltaTime)
     {
         changeDynamicComponents(deltaTime); 
+           
+        lightSpaceTrMatrix = computeLightSpaceTrMatrix(myWindow,myCamera);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         depthMapShader.useShaderProgram();
@@ -43,48 +45,48 @@ namespace gps {
         glUniformMatrix4fv(glGetUniformLocation(depthMapShader.shaderProgram, "lightSpaceTrMatrix"),
             1,
             GL_FALSE,
-            glm::value_ptr(computeLightSpaceTrMatrix(myWindow,myCamera)));
+            glm::value_ptr(lightSpaceTrMatrix));
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
-        waterFountainObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterFountain, &depthMapShader, false);
+        waterFountainObject.drawShadow(&waterFountain, &depthMapShader);
         
-        forumObject.drawObject(glGetUniformLocation(waterShader.shaderProgram, "normalMatrix"), view, &forum, &depthMapShader, false);
-        waterPoolsObject[0].drawObject(glGetUniformLocation(waterShader.shaderProgram, "normalMatrix"), view, &waterFountainWater, &depthMapShader, false);
+        forumObject.drawShadow(&forum, &depthMapShader);
+        waterPoolsObject[0].drawShadow(&waterFountainWater, &depthMapShader);
         for (int index = 1; index < WATER_NUMBER; index++)
         {
-            waterPoolsObject[index].drawObject(glGetUniformLocation(waterShader.shaderProgram, "normalMatrix"), view, &waterPool, &depthMapShader, false);
+            waterPoolsObject[index].drawShadow(&waterPool, &depthMapShader);
         }
         for (int index = 0; index < BUILDINGS_NUMBER; index++)
         {
-            insulaRomanaObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &insulaRomana, &depthMapShader, false);
+            insulaRomanaObjects[index].drawShadow( &insulaRomana, &depthMapShader);
         }
         for (int index = 0; index < GATES_NUMBER; index++)
         {
-            gatesObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wallGate, &depthMapShader, false);
+            gatesObjects[index].drawShadow(  &wallGate, &depthMapShader);
         }
         for (int index = 0; index < WALLS_NUMBER; index++)
         {
-            wallObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wall, &depthMapShader, false);
+            wallObjects[index].drawShadow(  &wall, &depthMapShader);
         }
         for (int index = 0; index < GRASS_NUMBER; index++)
         {
-            grassObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &grass, &depthMapShader, false);
+            grassObjects[index].drawShadow(  &grass, &depthMapShader);
         }
         for (int index = 0; index < STREETS_NUMBER; index++)
         {
-            streetsObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &street, &depthMapShader, false);
+            streetsObjects[index].drawShadow(  &street, &depthMapShader);
         }
         for (int index = 0; index < LIGHT_MAX; index++)
         {
-            streetLampsObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &streetLamps, &depthMapShader, false);
+            streetLampsObjects[index].drawShadow(  &streetLamps, &depthMapShader);
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         mainShader.useShaderProgram();
 
         // send lightSpace matrix to shader
-        glUniformMatrix4fv(glGetUniformLocation(mainShader.shaderProgram, "lightSpaceTrMatrix"), 1, GL_FALSE, glm::value_ptr(computeLightSpaceTrMatrix(myWindow, myCamera)));
+        glUniformMatrix4fv(glGetUniformLocation(mainShader.shaderProgram, "lightSpaceTrMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceTrMatrix));
 
         // send view matrix to shader
         view = myCamera.getViewMatrix();
@@ -105,34 +107,34 @@ namespace gps {
 
 
 
-        waterFountainObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &waterFountain, &mainShader, true);
-        forumObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &forum, &mainShader, true);
+        waterFountainObject.drawObject( view, &waterFountain, &mainShader);
+        forumObject.drawObject( view, &forum, &mainShader);
         for (int index = 0; index < BUILDINGS_NUMBER; index++)
         {
-            insulaRomanaObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &insulaRomana, &mainShader, true);
+            insulaRomanaObjects[index].drawObject(view, &insulaRomana, &mainShader);
         }
         for (int index = 0; index < GATES_NUMBER; index++)
         {
-            gatesObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wallGate, &mainShader, true);
+            gatesObjects[index].drawObject( view, &wallGate, &mainShader);
         }
         for (int index = 0; index < WALLS_NUMBER; index++)
         {
-            wallObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &wall, &mainShader, true);
+            wallObjects[index].drawObject( view, &wall, &mainShader);
         }
         for (int index = 0; index < GRASS_NUMBER; index++)
         {
-            grassObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &grass, &mainShader, true);
+            grassObjects[index].drawObject( view, &grass, &mainShader);
         }
         for (int index = 0; index < STREETS_NUMBER; index++)
         {
-            streetsObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &street, &mainShader, true);
+            streetsObjects[index].drawObject( view, &street, &mainShader);
         }
         for (int index = 0; index < LIGHT_MAX; index++)
         {
-            streetLampsObjects[index].drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &streetLamps, &mainShader, true);
+            streetLampsObjects[index].drawObject( view, &streetLamps, &mainShader);
         }
-        directionalLightSphereObject.translateAbsolute(directionalLightPosition);
-        directionalLightSphereObject.drawObject(glGetUniformLocation(mainShader.shaderProgram, "normalMatrix"), view, &directionalLightSphere, &mainShader, true);
+        directionalLightSphereObject.translateAbsolute(directionalLightPosition,deltaTime.getTranslationSpeed());
+        directionalLightSphereObject.drawObject( view, &directionalLightSphere, &mainShader);
 
         for (int i = 0; i < LIGHT_MAX; i++)
         {
@@ -155,7 +157,7 @@ namespace gps {
         }
 
         waterShader.useShaderProgram();
-        glUniformMatrix4fv(glGetUniformLocation(waterShader.shaderProgram, "lightSpaceTrMatrix"), 1, GL_FALSE, glm::value_ptr(computeLightSpaceTrMatrix(myWindow, myCamera)));
+        glUniformMatrix4fv(glGetUniformLocation(waterShader.shaderProgram, "lightSpaceTrMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceTrMatrix));
         view = myCamera.getViewMatrix();
         glUniformMatrix4fv(glGetUniformLocation(waterShader.shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
         lightDirMatrix = glm::mat3(glm::inverseTranspose(view));
@@ -166,10 +168,10 @@ namespace gps {
         glBindTexture(GL_TEXTURE_2D, depthMapTexture);
         glUniform1i(glGetUniformLocation(waterShader.shaderProgram, "shadowMap"), 3);
         glUniform1f(glGetUniformLocation(waterShader.shaderProgram, "time"), sin(glfwGetTime()));
-        waterPoolsObject[0].drawObject(glGetUniformLocation(waterShader.shaderProgram, "normalMatrix"), view, &waterFountainWater, &waterShader, true);
+        waterPoolsObject[0].drawObject(view, &waterFountainWater, &waterShader);
         for (int index = 1; index < WATER_NUMBER; index++)
         {
-            waterPoolsObject[index].drawObject(glGetUniformLocation(waterShader.shaderProgram, "normalMatrix"), view, &waterPool, &waterShader, true);
+            waterPoolsObject[index].drawObject(view, &waterPool, &waterShader);
         }
         for (int i = 0; i < SPOT_LIGHTS_MAX; i++)
         {
@@ -554,7 +556,6 @@ namespace gps {
     }
     void ObjectManager::initUniforms(gps::Window myWindow)
     {
-
         projection = glm::perspective(glm::radians(FOV), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
         // set light color
         setDirectionalLightIntensity(0.4f);
@@ -604,7 +605,7 @@ namespace gps {
 
     glm::mat4 ObjectManager::computeLightSpaceTrMatrix(gps::Window myWindow, gps::Camera myCamera)
     {
-        const GLfloat near_plane = 0.1f, far_plane = 200.0f;
+        const GLfloat near_plane = 0.1f, far_plane = 300.0f;
         glm::mat4 lightProjection = glm::ortho(
             -500.0f,
             500.0f,
