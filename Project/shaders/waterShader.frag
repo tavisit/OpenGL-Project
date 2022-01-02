@@ -20,7 +20,7 @@ uniform sampler2D shadowMap;
 
 float ambientDirectionalStrength = 0.5f;
 float specularDirectionalStrength = 0.7f;
-float shininessDirectional = 64.0f;
+float shininessDirectional = 128.0f;
 
 uniform	vec3 directionalLightColor;
 uniform	vec3 directionalLightPosition;
@@ -40,8 +40,8 @@ struct POINT_LIGHT
 layout(location = 0) uniform POINT_LIGHT pointLights[LIGHT_MAX]; // locations [0, LIGHT_MAX*3)
 
 float ambientPointStrength = 0.7f;
-float specularPointStrength = 0.5f;
-float shininessPoint = 32.0f;
+float specularPointStrength = 0.7f;
+float shininessPoint = 64.0f;
 
 float pointConstant = 1.0f;
 float pointLinear = 0.0225f;
@@ -56,8 +56,8 @@ float spotQuadratic = 0.02f;
 vec3 spotLightColor = vec3(10,10,10);
 
 float ambientSpotStrength = 0.5f;
-float specularSpotStrength = 0.5f;
-float shininessSpot = 64.0f;
+float specularSpotStrength = 0.7f;
+float shininessSpot = 128.0f;
 
 float spotlightCutOff = cos(radians(10));
 float spotlightOuterCutOff =  cos(radians(30));

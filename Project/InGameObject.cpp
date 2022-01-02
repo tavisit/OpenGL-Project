@@ -133,7 +133,6 @@ namespace gps {
     }
     void InGameObject::drawShadow(gps::Model3D* model3D, gps::Shader* shader)
     {
-
         shader->useShaderProgram();
         glUniformMatrix4fv(glGetUniformLocation(shader->shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(model));
         model3D->Draw(*shader);

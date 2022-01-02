@@ -127,13 +127,13 @@ namespace gps {
         }
         for (int index = 0; index < STREETS_NUMBER; index++)
         {
-            streetsObjects[index].drawObject( view, &street, &mainShader);
+            streetsObjects[index].drawObject(view, &street, &mainShader);
         }
         for (int index = 0; index < LIGHT_MAX; index++)
         {
             streetLampsObjects[index].drawObject( view, &streetLamps, &mainShader);
         }
-        directionalLightSphereObject.translateAbsolute(directionalLightPosition,deltaTime.getTranslationSpeed());
+        directionalLightSphereObject.translateAbsolute(directionalLightPosition);
         directionalLightSphereObject.drawObject( view, &directionalLightSphere, &mainShader);
 
         for (int i = 0; i < LIGHT_MAX; i++)

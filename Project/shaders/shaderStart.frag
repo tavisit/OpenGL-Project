@@ -2,7 +2,7 @@
 in vec3 normal;
 in vec4 fragPosEye;
 in vec4 fragPosLightSpace;
-in vec2 fragTexCoords;
+in vec2 fTexCoords;
 
 in vec3 fragPos;
 
@@ -99,9 +99,9 @@ vec3 CalcPointLight(vec3 currentPointLightPos,vec3 currentPointLightColor)
 	vec3 ambient = ambientPointStrength * currentPointLightColor ;
 	vec3 diffuse = ambientPointStrength *diff * currentPointLightColor;
 	vec3 specular = shininessPoint * spec * currentPointLightColor;
-	ambient *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	diffuse *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	specular *= vec3(pow(texture(specularTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
+	ambient *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	diffuse *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	specular *= vec3(pow(texture(specularTexture, fTexCoords).rgb, vec3(1.0/gamma)));
 
 	return (ambient + diffuse + specular) / attenuation;
 }
@@ -120,9 +120,9 @@ vec3 CalcDirLight()
     vec3 ambient = ambientDirectionalStrength * directionalLightColor;
 	vec3 diffuse = ambientDirectionalStrength * diff * directionalLightColor;
 	vec3 specular = specularDirectionalStrength * spec * directionalLightColor;
-	ambient *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	diffuse *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	specular *= vec3(pow(texture(specularTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
+	ambient *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	diffuse *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	specular *= vec3(pow(texture(specularTexture, fTexCoords).rgb, vec3(1.0/gamma)));
 
     return (ambient + diffuse + specular);
 }  
@@ -145,9 +145,9 @@ vec3 computeLightSpotComponents(vec3 spotLightPosition, vec3 spotLightDirection)
 	vec3 ambient = spotLightColor * ambientSpotStrength * attenuation * intensity;
 	vec3 diffuse = spotLightColor * ambientSpotStrength * diff *attenuation * intensity;
 	vec3 specular = spotLightColor * specularSpotStrength * spec *attenuation * intensity;
-	ambient *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	diffuse *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	specular *= vec3(pow(texture(specularTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
+	ambient *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	diffuse *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	specular *= vec3(pow(texture(specularTexture, fTexCoords).rgb, vec3(1.0/gamma)));
 	
 	return ambient + diffuse + specular;
 }
@@ -196,7 +196,7 @@ void main()
 {
 	////////////////////////////////////////////////////////////
 	directionalLightDir = normalize(directionalLightPosition - fragPos);
-    vec3 color = pow(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)).rgb, vec3(1.0/gamma));
+    vec3 color = pow(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)).rgb, vec3(1.0/gamma));
     Normal = normalize(normal);
     viewDir = normalize(fragPosEye.xyz - fragPos);
 	
@@ -253,9 +253,9 @@ void main()
 	vec3 diffuse = ambientDirectionalStrength * diff * directionalLightColor;
 	vec3 specular = specularDirectionalStrength * spec * directionalLightColor;
 
-	ambient *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	diffuse *= vec3(pow(texture(diffuseTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
-	specular *= vec3(pow(texture(specularTexture, fragTexCoords).rgb, vec3(1.0/gamma)));
+	ambient *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	diffuse *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	specular *= vec3(pow(texture(specularTexture, fTexCoords).rgb, vec3(1.0/gamma)));
 	////////////////////////////////////////////////////////////
 
 	vec3 shadowColor = (ambient + shadow * (diffuse + specular)) * color;   

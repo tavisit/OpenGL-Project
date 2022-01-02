@@ -268,8 +268,10 @@ void writeCredits()
     std::cout << "https://pixabay.com/ \n";
     std::cout << "https://freesound.org/ \n";
     std::cout << "\n\n            Textures\n\n";
-    std::cout << "https://www.solarsystemscope.com/textures/\n";
+    std::cout << "https://www.solarsystemscope.com/textures/ \n";
     std::cout << "Creation of texture maps: https://cpetry.github.io/NormalMap-Online/ \n";
+    std::cout << "\n\n            Code Ideas\n\n";
+    std::cout << "Vertex position pseudo random generator: https://www.geeks3d.com/20100831/shader-library-noise-and-pseudo-random-number-generator-in-glsl/ \n";
     std::cout << "\n\nControls\n";
     std::cout << "- WASD for movement\n";
     std::cout << "- Mouse to look around\n";
