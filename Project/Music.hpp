@@ -11,12 +11,30 @@ using namespace irrklang;
 
 namespace gps
 {
+    /// <summary>
+    /// Music object that controls the sound of the application
+    /// </summary>
     class Music {
     public:
+        /// <summary>
+        /// Object constructor
+        /// </summary>
         Music();
+        /// <summary>
+        /// Method that updates the location of the music related to the camera
+        /// </summary>
+        /// <param name="myCamera"></param>
         void update(gps::Camera myCamera);
+        /// <summary>
+        /// Object deconstructor
+        /// </summary>
         ~Music();
     private:
+
+        ////////////////////////////////////////////////////////////////
+        // Private variables
+        ////////////////////////////////////////////////////////////////
+
         ISoundEngine* SoundEngine;
 
         #define WATER_NUMBER 3

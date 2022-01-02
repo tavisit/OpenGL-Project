@@ -11,6 +11,7 @@
 
 #include <iostream>
 
+// Resolution global variable
 int horizontalMonitor = 1080;
 int verticalMonitor = 1920;
 int horizontalWindowed = 720;
@@ -22,43 +23,34 @@ gps::Camera myCamera(
     glm::vec3(1.0f, 0.5f, 5.0f),
     glm::vec3(0.0f, 0.0f, 0.0f),
     glm::vec3(0.0f, 1.0f, 0.0f));
-
+// camera speed
 GLfloat cameraSpeed = 0.1f;
 
+// pressed keys array
 GLboolean pressedKeys[1024];
 
+// Object manager instance
 gps::ObjectManager objectManager;
-// for skybox
+
+// Skybox global variables
 std::vector<const GLchar*> faces;
 gps::SkyBox mySkyBox;
 gps::Shader skyboxShader;
 gps::DeltaTime deltaTime;
+
+// Music global variable
 gps::Music programMusic;
+
+// Night/Day variables
 bool nightTime = false;
 bool dayTime = false;
-void GetDesktopResolution(int& horizontal, int& vertical);
 
-void initSkyBoxShader()
-{
-    mySkyBox.Load(faces);
-    skyboxShader.loadShader("shaders/skyboxShader.vert", "shaders/skyboxShader.frag");
-    skyboxShader.useShaderProgram();
-    glUniformMatrix4fv(glGetUniformLocation(skyboxShader.shaderProgram, "view"), 1, GL_FALSE,
-        glm::value_ptr(objectManager.getView(myCamera)));
+// mouse event variables
+bool mouse = true;
+float lastX = 400, lastY = 300;
+float yaw = -90.0f, pitch;
 
-    glUniformMatrix4fv(glGetUniformLocation(skyboxShader.shaderProgram, "projection"), 1, GL_FALSE,
-        glm::value_ptr(objectManager.getProjection(myWindow)));
-}
-void initFaces()
-{
-    faces.push_back("skybox/Variant2/posx.jpg");
-    faces.push_back("skybox/Variant2/negx.jpg");
-    faces.push_back("skybox/Variant2/posy.jpg");
-    faces.push_back("skybox/Variant2/negy.jpg");
-    faces.push_back("skybox/Variant2/posz.jpg");
-    faces.push_back("skybox/Variant2/negz.jpg");
-}
-
+// Window resize callback
 void windowResizeCallback(GLFWwindow* window, int width, int height) {
 
     if (width < 10 || height < 10)
@@ -75,7 +67,7 @@ void windowResizeCallback(GLFWwindow* window, int width, int height) {
     // set Viewport transform
     glViewport(0, 0, (float)myWindow.getWindowDimensions().width, (float)myWindow.getWindowDimensions().height);
 }
-
+// keyboard callback
 void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
@@ -89,10 +81,6 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
         }
     }
 }
-bool mouse = true;
-
-float lastX = 400, lastY = 300;
-float yaw = -90.0f, pitch;
 void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
     if (mouse)
     {
@@ -217,6 +205,26 @@ void processMovement() {
     }
 }
 
+void initSkyBoxShader()
+{
+    mySkyBox.Load(faces);
+    skyboxShader.loadShader("shaders/skyboxShader.vert", "shaders/skyboxShader.frag");
+    skyboxShader.useShaderProgram();
+    glUniformMatrix4fv(glGetUniformLocation(skyboxShader.shaderProgram, "view"), 1, GL_FALSE,
+        glm::value_ptr(objectManager.getView(myCamera)));
+
+    glUniformMatrix4fv(glGetUniformLocation(skyboxShader.shaderProgram, "projection"), 1, GL_FALSE,
+        glm::value_ptr(objectManager.getProjection(myWindow)));
+}
+void initFaces()
+{
+    faces.push_back("skybox/Variant2/posx.jpg");
+    faces.push_back("skybox/Variant2/negx.jpg");
+    faces.push_back("skybox/Variant2/posy.jpg");
+    faces.push_back("skybox/Variant2/negy.jpg");
+    faces.push_back("skybox/Variant2/posz.jpg");
+    faces.push_back("skybox/Variant2/negz.jpg");
+}
 void initOpenGLWindow() {
     myWindow.Create(verticalWindowed, horizontalWindowed, "City");
 }
@@ -238,7 +246,8 @@ void initOpenGLState() {
     glEnable(GL_CULL_FACE); // cull face
     glCullFace(GL_BACK); // cull back face
     glFrontFace(GL_CCW); // GL_CCW for counter clock-wise
-    glEnable(GL_FRAMEBUFFER_SRGB); // Gamma correction
+    glEnable(GL_FRAMEBUFFER_SRGB); // Gamma correction enable
+    glfwSwapInterval(1);
         
 }
 void renderScene() {
@@ -300,9 +309,9 @@ int main(int argc, const char * argv[]) {
 	// application loop
 	while (!glfwWindowShouldClose(myWindow.getWindow())) {
         deltaTime.calculateDeltaTime(true);
-        programMusic.update(myCamera);
 
         processMovement();
+        programMusic.update(myCamera);
         renderScene();
 
 		glfwPollEvents();
@@ -311,18 +320,4 @@ int main(int argc, const char * argv[]) {
 	cleanup();
 
     return EXIT_SUCCESS;
-}
-
-void GetDesktopResolution(int& horizontal, int& vertical)
-{
-    RECT desktop;
-    // Get a handle to the desktop window
-    const HWND hDesktop = GetDesktopWindow();
-    // Get the size of screen to the variable desktop
-    GetWindowRect(hDesktop, &desktop);
-    // The top left corner will have coordinates (0,0)
-    // and the bottom right corner will have coordinates
-    // (horizontal, vertical)
-    horizontal = desktop.right;
-    vertical = desktop.bottom;
 }

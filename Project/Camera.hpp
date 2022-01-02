@@ -7,27 +7,76 @@
 
 namespace gps {
         
+    /// <summary>
+    /// Abstractization of the camera concept, containing methods for translation and rotation of the camera
+    /// </summary>
     class Camera
     {
     public:
-        //Camera constructor
+        /// <summary>
+        /// Camera constructor
+        /// </summary>
+        /// <param name="cameraPosition"></param>
+        /// <param name="cameraTarget"></param>
+        /// <param name="cameraUp"></param>
         Camera(glm::vec3 cameraPosition, glm::vec3 cameraTarget, glm::vec3 cameraUp);
-        //return the view matrix, using the glm::lookAt() function
+
+        /// <summary>
+        /// Compute the view matrix
+        /// </summary>
+        /// <returns>the view matrix, using the glm::lookAt() function</returns>
         glm::mat4 getViewMatrix();
-        //update the camera internal parameters following a camera move event
+
+        /// <summary>
+        /// Updates the camera internal parameters following a camera move event
+        /// </summary>
+        /// <param name="direction"></param>
+        /// <param name="speed"></param>
         void move(MOVE_DIRECTION direction, float speed);
-        //update the camera internal parameters following a camera rotate event
-        //yaw - camera rotation around the y axis
-        //pitch - camera rotation around the x axis
+
+        /// <summary>
+        /// Updates the camera internal parameters following a camera rotate event
+        /// </summary>
+        /// <param name="pitch">camera rotation around the y axis</param>
+        /// <param name="yaw">camera rotation around the x axis</param>
         void rotate(float pitch, float yaw);
 
+        /// <summary>
+        /// Getter for the camera position in 3D space
+        /// </summary>
+        /// <returns></returns>
         glm::vec3 getCameraPosition();
+
+        /// <summary>
+        /// Getter for the camera target vector
+        /// </summary>
+        /// <returns></returns>
         glm::vec3 getCameraTarget();
+
+        /// <summary>
+        /// Getter for the camera front direction vector
+        /// </summary>
+        /// <returns></returns>
         glm::vec3 getCameraFrontDirection();
+
+        /// <summary>
+        /// Setter for the walking variables that dictates if the camera should fly or stay on the ground
+        /// </summary>
+        /// <param name="walkingVar"></param>
         void setWalkingVar(bool walkingVar);
+
+        /// <summary>
+        /// Getter for the walking variable
+        /// </summary>
+        /// <returns></returns>
         bool getWalkingVar();
         
     private:
+
+        ////////////////////////////////////////////////////////////////
+        // Private variables
+        ////////////////////////////////////////////////////////////////
+
         glm::vec3 cameraPosition;
         glm::vec3 cameraTarget;
         glm::vec3 cameraFrontDirection;

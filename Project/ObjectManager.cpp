@@ -33,7 +33,7 @@ GLenum glCheckError_(const char* file, int line)
 }
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 namespace gps {
-    void ObjectManager::renderScene(gps::Window myWindow, gps::Camera myCamera, DeltaTime deltaTime)
+    void ObjectManager::renderScene(gps::Window myWindow, gps::Camera myCamera, gps::DeltaTime deltaTime)
     {
         changeDynamicComponents(deltaTime); 
 
@@ -392,10 +392,6 @@ namespace gps {
         projLoc = glGetUniformLocation(waterShader.shaderProgram, "projection");
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
     }
-    glm::mat4 ObjectManager::getModel()
-    {
-        return model;
-    }
     glm::mat4 ObjectManager::getView(gps::Camera myCamera)
     {
         view = myCamera.getViewMatrix();
@@ -608,7 +604,7 @@ namespace gps {
 
     glm::mat4 ObjectManager::computeLightSpaceTrMatrix(gps::Window myWindow, gps::Camera myCamera)
     {
-        const GLfloat near_plane = 0.1f, far_plane = 300.0f;
+        const GLfloat near_plane = 0.1f, far_plane = 200.0f;
         glm::mat4 lightProjection = glm::ortho(
             -500.0f,
             500.0f,
@@ -618,8 +614,8 @@ namespace gps {
             far_plane);
 
         glm::mat4 lightView = glm::lookAt(
-            directionalLightPosition, 
-            glm::vec3(0,0,0), 
+            directionalLightPosition,
+            glm::vec3(0, -2.0f, 80.0f),
             glm::vec3(0.0f, 1.0f, 0.0f));
 
         return lightProjection * lightView;

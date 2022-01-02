@@ -10,8 +10,14 @@
 #include <glm/gtx/transform.hpp>
 
 namespace gps {
-
+    /// <summary>
+    /// Enum that stores the move directions for Camera and InGameObject usage
+    /// </summary>
     enum MOVE_DIRECTION { MOVE_FORWARD, MOVE_BACKWARD, MOVE_RIGHT, MOVE_LEFT, MOVE_UP, MOVE_DOWN };
+
+    /// <summary>
+    /// Enum that stores the rotation directions for Camera and InGameObject usage
+    /// </summary>
     enum ROTATION_DIRECTION { X_AXIS, Y_AXIS, Z_AXIS};
 
 }

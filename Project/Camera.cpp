@@ -35,7 +35,7 @@ namespace gps {
         case MOVE_LEFT:
             potentialNewPosition -= this->cameraRightDirection * speed;
             break;
-        }        
+        }
         // keep the camera on street level
         if (this->walking)
         {
