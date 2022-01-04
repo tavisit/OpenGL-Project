@@ -49,37 +49,37 @@ namespace gps {
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
+
+        for (int index = 0; index < GRASS_NUMBER; index++)
+        {
+            grassObjects[index].drawShadow(&grass, &depthMapShader);
+        }
+        for (int index = 0; index < STREETS_NUMBER; index++)
+        {
+            streetsObjects[index].drawShadow(&street, &depthMapShader);
+        }
+        for (int index = 0; index < WALLS_NUMBER; index++)
+        {
+            wallObjects[index].drawShadow(&wall, &depthMapShader);
+        }
+        for (int index = 0; index < GATES_NUMBER; index++)
+        {
+            gatesObjects[index].drawShadow(&wallGate, &depthMapShader);
+        }
+        for (int index = 0; index < BUILDINGS_NUMBER; index++)
+        {
+            insulaRomanaObjects[index].drawShadow(&insulaRomana, &depthMapShader);
+        }
+        for (int index = 0; index < LIGHT_MAX; index++)
+        {
+            streetLampsObjects[index].drawShadow(&streetLamps, &depthMapShader);
+        }
         waterFountainObject.drawShadow(&waterFountain, &depthMapShader);
-        
         forumObject.drawShadow(&forum, &depthMapShader);
         waterPoolsObject[0].drawShadow(&waterFountainWater, &depthMapShader);
         for (int index = 1; index < WATER_NUMBER; index++)
         {
             waterPoolsObject[index].drawShadow(&waterPool, &depthMapShader);
-        }
-        for (int index = 0; index < BUILDINGS_NUMBER; index++)
-        {
-            insulaRomanaObjects[index].drawShadow( &insulaRomana, &depthMapShader);
-        }
-        for (int index = 0; index < GATES_NUMBER; index++)
-        {
-            gatesObjects[index].drawShadow(  &wallGate, &depthMapShader);
-        }
-        for (int index = 0; index < WALLS_NUMBER; index++)
-        {
-            wallObjects[index].drawShadow(  &wall, &depthMapShader);
-        }
-        for (int index = 0; index < GRASS_NUMBER; index++)
-        {
-            grassObjects[index].drawShadow(  &grass, &depthMapShader);
-        }
-        for (int index = 0; index < STREETS_NUMBER; index++)
-        {
-            streetsObjects[index].drawShadow(  &street, &depthMapShader);
-        }
-        for (int index = 0; index < LIGHT_MAX; index++)
-        {
-            streetLampsObjects[index].drawShadow(  &streetLamps, &depthMapShader);
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -105,36 +105,33 @@ namespace gps {
         glBindTexture(GL_TEXTURE_2D, depthMapTexture);
         glUniform1i(glGetUniformLocation(mainShader.shaderProgram, "shadowMap"), 3);
 
-
-
-        waterFountainObject.drawObject( view, &waterFountain, &mainShader);
-        forumObject.drawObject( view, &forum, &mainShader);
-        for (int index = 0; index < BUILDINGS_NUMBER; index++)
-        {
-            insulaRomanaObjects[index].drawObject(view, &insulaRomana, &mainShader);
-        }
-        for (int index = 0; index < GATES_NUMBER; index++)
-        {
-            gatesObjects[index].drawObject( view, &wallGate, &mainShader);
-        }
-        for (int index = 0; index < WALLS_NUMBER; index++)
-        {
-            wallObjects[index].drawObject( view, &wall, &mainShader);
-        }
         for (int index = 0; index < GRASS_NUMBER; index++)
         {
-            grassObjects[index].drawObject( view, &grass, &mainShader);
+            grassObjects[index].drawObject(view, &grass, &mainShader);
         }
         for (int index = 0; index < STREETS_NUMBER; index++)
         {
             streetsObjects[index].drawObject(view, &street, &mainShader);
         }
+        for (int index = 0; index < WALLS_NUMBER; index++)
+        {
+            wallObjects[index].drawObject(view, &wall, &mainShader);
+        }
+        for (int index = 0; index < GATES_NUMBER; index++)
+        {
+            gatesObjects[index].drawObject(view, &wallGate, &mainShader);
+        }
+        for (int index = 0; index < BUILDINGS_NUMBER; index++)
+        {
+            insulaRomanaObjects[index].drawObject(view, &insulaRomana, &mainShader);
+        }
         for (int index = 0; index < LIGHT_MAX; index++)
         {
-            streetLampsObjects[index].drawObject( view, &streetLamps, &mainShader);
+            streetLampsObjects[index].drawObject(view, &streetLamps, &mainShader);
         }
-        directionalLightSphereObject.translateAbsolute(directionalLightPosition);
-        directionalLightSphereObject.drawObject( view, &directionalLightSphere, &mainShader);
+        waterFountainObject.drawObject( view, &waterFountain, &mainShader);
+        forumObject.drawObject( view, &forum, &mainShader);
+        directionalLightSphereObject.drawObject(view, &directionalLightSphere, &mainShader);
 
         for (int i = 0; i < LIGHT_MAX; i++)
         {
@@ -158,7 +155,6 @@ namespace gps {
 
         waterShader.useShaderProgram();
         glUniformMatrix4fv(glGetUniformLocation(waterShader.shaderProgram, "lightSpaceTrMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceTrMatrix));
-        view = myCamera.getViewMatrix();
         glUniformMatrix4fv(glGetUniformLocation(waterShader.shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
         lightDirMatrix = glm::mat3(glm::inverseTranspose(view));
         glUniformMatrix3fv(glGetUniformLocation(waterShader.shaderProgram, "lightDirMatrix"), 1, GL_FALSE, glm::value_ptr(lightDirMatrix));
@@ -167,7 +163,7 @@ namespace gps {
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, depthMapTexture);
         glUniform1i(glGetUniformLocation(waterShader.shaderProgram, "shadowMap"), 3);
-        glUniform1f(glGetUniformLocation(waterShader.shaderProgram, "time"), sin(glfwGetTime()));
+        glUniform1f(glGetUniformLocation(waterShader.shaderProgram, "time"), glfwGetTime());
         waterPoolsObject[0].drawObject(view, &waterFountainWater, &waterShader);
         for (int index = 1; index < WATER_NUMBER; index++)
         {
@@ -407,7 +403,7 @@ namespace gps {
     void ObjectManager::setDirectionalLightIntensity(GLfloat intensity)
     {
         directionalLightPosition = getSunPositionByIntensity(intensity);
-        if (intensity >= 1.75)
+        if (intensity > 1.75) // (1.75f,2.0f]
         {
             directionalLightColor = colorParser.convertFromHEXToVector("5c2d04");
             for (int i = 0; i < LIGHT_MAX; i++)
@@ -415,15 +411,15 @@ namespace gps {
                 pointLights[i].intensity = 1.0f;
             }
         }
-        else if (intensity >= 1.5)
+        else if (intensity >= 1.5) // [1.5f,1.75f]
         {
             directionalLightColor = colorParser.convertFromHEXToVector("ffe4c9");
             for (int i = 0; i < LIGHT_MAX; i++)
             {
-                pointLights[i].intensity = 0.4f;
+                pointLights[i].intensity = 1.0f - (1.75f - intensity)*4;
             }
         }
-        else if (intensity >= 0.5f)
+        else if (intensity > 0.5f) // (0.5f, 1.5f)
         {
             directionalLightColor = colorParser.convertFromEnumToVector(colorParser.WHITE);
             for (int i = 0; i < LIGHT_MAX; i++)
@@ -431,15 +427,15 @@ namespace gps {
                 pointLights[i].intensity = 0.0f;
             }
         }
-        else if (intensity >= 0.25f)
+        else if (intensity >= 0.25f) // [0.25F,0.5f]
         {
             directionalLightColor = colorParser.convertFromHEXToVector("ffe4c9");
             for (int i = 0; i < LIGHT_MAX; i++)
             {
-                pointLights[i].intensity = 0.4f;
+                pointLights[i].intensity = 1.0f - (intensity - 0.25f) * 4;
             }
         }
-        else
+        else // [0,0.25f)
         {
             directionalLightColor = colorParser.convertFromHEXToVector("5c2d04");
             for (int i = 0; i < LIGHT_MAX; i++)
@@ -632,6 +628,7 @@ namespace gps {
             }
             setDirectionalLightIntensity(directionalLightIntensity - 0.01f * deltaTime.getDeltaTime());
         }
+        directionalLightSphereObject.translateAbsolute(directionalLightPosition);
     }
 
     glm::vec3 ObjectManager::getSunPositionByIntensity(GLfloat intensity)

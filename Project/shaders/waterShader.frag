@@ -18,9 +18,9 @@ uniform sampler2D shadowMap;
 ////////////////////////////////////////////////////////////
 // directional light
 
-float ambientDirectionalStrength = 0.5f;
-float specularDirectionalStrength = 0.7f;
-float shininessDirectional = 16.0f;
+float ambientDirectionalStrength = 0.4f;
+float specularDirectionalStrength = 0.6f;
+float shininessDirectional = 32.0f;
 
 uniform	vec3 directionalLightColor;
 uniform	vec3 directionalLightPosition;
@@ -39,21 +39,21 @@ struct POINT_LIGHT
 #define LIGHT_MAX 6
 layout(location = 0) uniform POINT_LIGHT pointLights[LIGHT_MAX]; // locations [0, LIGHT_MAX*3)
 
-float ambientPointStrength = 0.7f;
+float ambientPointStrength = 0.5f;
 float specularPointStrength = 0.5f;
 float shininessPoint = 16.0f;
 
-float pointConstant = 1.0f;
-float pointLinear = 0.0225f;
+float pointConstant = 1.0;
+float pointLinear = 0.0225;
 float pointQuadratic = 0.0375;
 
 ////////////////////////////////////////////////////////////
 // spot light
 
-float spotConstant = 1.0f;
-float spotLinear = 0.1f;
-float spotQuadratic = 0.02f;
-vec3 spotLightColor = vec3(255,255,255);
+float spotConstant = 1.0;
+float spotLinear = 0.0225;
+float spotQuadratic = 0.0375;
+vec3 spotLightColor = vec3(10,10,10);
 
 float ambientSpotStrength = 0.5f;
 float specularSpotStrength = 0.5f;
@@ -75,7 +75,7 @@ layout(location = 120) uniform SPOT_LIGHT spotLights[SPOT_LIGHTS_MAX]; // locati
 ////////////////////////////////////////////////////////////
 //General global variables
 
-float gamma = 2.2;
+float gamma = 1.25;
 vec3 Normal;
 vec3 viewDir;
 vec3 directionalLightDir;
@@ -145,7 +145,7 @@ vec3 computeLightSpotComponents(vec3 spotLightPosition, vec3 spotLightDirection)
 	float epsilon = spotlightCutOff  - spotlightOuterCutOff ;
 	float intensity = clamp((theta - spotlightOuterCutOff )/epsilon, 0.0, 1.0);
 
-	vec3 ambient = spotLightColor * ambientSpotStrength * attenuation * intensity;
+	vec3 ambient = spotLightColor * ambientSpotStrength * attenuation;
 	vec3 diffuse = spotLightColor * ambientSpotStrength * diff * attenuation * intensity;
 	vec3 specular = spotLightColor * specularSpotStrength * spec * attenuation * intensity;
 
@@ -160,24 +160,23 @@ vec3 computeLightSpotComponents(vec3 spotLightPosition, vec3 spotLightDirection)
 float computeShadow()
 {	
 	// perform perspective divide
-    vec3 normalizedCoords = fPosLightSpace.xyz / fPosLightSpace.w;
-    if(normalizedCoords.z > 1.0f)
-        return 1.0f;  
-		
+    vec3 normalizedCoords = fPosLightSpace.xyz / fPosLightSpace.w;		
     normalizedCoords = normalizedCoords *0.5f+0.5f;
 
-    float currentDepth = texture(shadowMap,normalizedCoords.xy).r;
+	float currentDepth = normalizedCoords.z;
+    float closestDepth = texture(shadowMap,normalizedCoords.xy).r;
     float bias =  max(0.05 * (1.0 - dot(normal, directionalLightDir)), 0.005);
 
-	float shadow = 0.0;
+
 	//Percentage-closer filtering
+	float shadow = 0.0;
 	vec2 texelSize = 1.0/textureSize(shadowMap,0);
 	for(int x=-1;x<=1;++x)
 	{
 		for(int y=-1;y<=1;++y)
-		{
-			float depth = texture(shadowMap,normalizedCoords.xy+vec2(x,y)*texelSize).r;
-			shadow+= (currentDepth+bias)<normalizedCoords.z ? 0.0f:1.0f;
+		{ 
+			float pcfDepth = texture(shadowMap,normalizedCoords.xy+vec2(x,y)*texelSize).r;
+			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0; 
 		}
 	}
 
@@ -206,10 +205,6 @@ void main()
 	
 	////////////////////////////////////////////////////////////
 	vec3 totalLight = CalcDirLight();
-	
-	float distance = 1000;
-	int lightMinIndex = 0;
-
 	// For all lights, compute the light effect on the fment
 	for(int i=0;i<LIGHT_MAX;i++)
 	{
@@ -217,12 +212,6 @@ void main()
 
 		if(dot(vectorToLight,Normal)>=0.0f)
 		{
-			float currentDistance = length(pointLights[i].location - fPos);
-			if(currentDistance<distance)
-			{
-				distance = currentDistance;
-				lightMinIndex = i;
-			}
 			vec3 currentCalcPoint = CalcPointLight(pointLights[i].location,pointLights[i].color);
 			currentCalcPoint = currentCalcPoint*clamp(pointLights[i].intensity,0.0f,1.0f);
 			totalLight += currentCalcPoint;
@@ -239,17 +228,9 @@ void main()
 	}
 		
 	////////////////////////////////////////////////////////////
-	// If the light crosses a shadow, it has to illuminate and eliminiate to a degree the shadow
 	float shadow = computeShadow();
-	float biasShadowDistance = 10.0f;
-	if(distance <  biasShadowDistance* pointLights[lightMinIndex].intensity)
-	{
-		distance = 1 - (distance/(biasShadowDistance* pointLights[lightMinIndex].intensity));
-		shadow = shadow-distance;
-	}	
-
 	////////////////////////////////////////////////////////////
-	vec3 shadowColor = (ambient + shadow * (diffuse + specular)) * color;   
+	vec3 shadowColor = (ambient + (1-shadow) * (diffuse + specular)) * color;   
     
 	////////////////////////////////////////////////////////////
 	// Compute the fog factor

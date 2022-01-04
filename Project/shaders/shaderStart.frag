@@ -75,8 +75,7 @@ layout(location = 120) uniform SPOT_LIGHT spotLights[SPOT_LIGHTS_MAX]; // locati
 ////////////////////////////////////////////////////////////
 //General global variables
 
-float gamma = 2.2;
-vec3 Normal;
+float gamma = 1.25;
 vec3 viewDir;
 vec3 directionalLightDir;
 vec3 currentPointLightPos;
@@ -94,7 +93,7 @@ vec3 CalcPointLight(vec3 currentPointLightPos,vec3 currentPointLightColor)
 	// Blinn-Phong shading model
 	vec3 halfVector = normalize(lightDirTemp + viewDir);
 
-	float diff = max(dot(Normal, lightDirTemp), 0.0);
+	float diff = max(dot(normal, lightDirTemp), 0.0);
 	float spec = pow(max(dot(viewDir, halfVector), 0.0), shininessPoint);
 	float distance    = length(currentPointLightPos - fPos);
 	float attenuation = pointConstant + pointLinear * distance + pointQuadratic * (distance * distance); 
@@ -116,13 +115,14 @@ vec3 CalcDirLight()
     vec3 lightDirTemp = normalize(directionalLightDir);
 	// Blinn-Phong shading model
 	vec3 halfVector = normalize(lightDirTemp + viewDir);
-    float diff = max(dot(Normal, lightDirTemp), 0.0);
+    float diff = max(dot(normal, lightDirTemp), 0.0);
     float spec = pow(max(dot(viewDir, halfVector), 0.0), shininessDirectional);
 
     // combine results
-    ambient = ambientDirectionalStrength * directionalLightColor;
-	diffuse = ambientDirectionalStrength * diff * directionalLightColor;
-	specular = specularDirectionalStrength * spec * directionalLightColor;
+    vec3 ambient = ambientDirectionalStrength * directionalLightColor;
+	vec3 diffuse = ambientDirectionalStrength * diff * directionalLightColor;
+	vec3 specular = specularDirectionalStrength * spec * directionalLightColor;
+
 	ambient *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
 	diffuse *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
 	specular *= vec3(pow(texture(specularTexture, fTexCoords).rgb, vec3(1.0/gamma)));
@@ -137,7 +137,7 @@ vec3 computeLightSpotComponents(vec3 spotLightPosition, vec3 spotLightDirection)
 	vec3 halfVector = normalize(lightDirTemp + viewDir);
 
 	float diff = max(dot(normal, lightDirTemp), 0.0f);
-	float spec = pow(max(dot(Normal, halfVector), 0.0f), shininessSpot);
+	float spec = pow(max(dot(normal, halfVector), 0.0f), shininessSpot);
 	float distance = length(spotLightPosition - fPos);
 	float attenuation = 1.0f / (spotConstant + spotLinear * distance + spotQuadratic * distance * distance);
 
@@ -160,24 +160,23 @@ vec3 computeLightSpotComponents(vec3 spotLightPosition, vec3 spotLightDirection)
 float computeShadow()
 {	
 	// perform perspective divide
-    vec3 normalizedCoords = fPosLightSpace.xyz / fPosLightSpace.w;
-    if(normalizedCoords.z > 1.0f)
-        return 1.0f;  
-		
+    vec3 normalizedCoords = fPosLightSpace.xyz / fPosLightSpace.w;		
     normalizedCoords = normalizedCoords *0.5f+0.5f;
 
-    float currentDepth = texture(shadowMap,normalizedCoords.xy).r;
+	float currentDepth = normalizedCoords.z;
+    float closestDepth = texture(shadowMap,normalizedCoords.xy).r;
     float bias =  max(0.05 * (1.0 - dot(normal, directionalLightDir)), 0.005);
 
-	float shadow = 0.0;
+
 	//Percentage-closer filtering
+	float shadow = 0.0;
 	vec2 texelSize = 1.0/textureSize(shadowMap,0);
 	for(int x=-1;x<=1;++x)
 	{
 		for(int y=-1;y<=1;++y)
-		{
-			float depth = texture(shadowMap,normalizedCoords.xy+vec2(x,y)*texelSize).r;
-			shadow+= (currentDepth+bias)<normalizedCoords.z ? 0.0f:1.0f;
+		{ 
+			float pcfDepth = texture(shadowMap,normalizedCoords.xy+vec2(x,y)*texelSize).r;
+			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0; 
 		}
 	}
 
@@ -201,7 +200,6 @@ void main()
 	////////////////////////////////////////////////////////////
 	directionalLightDir = normalize(directionalLightPosition - fPos);
     vec3 color = texture(diffuseTexture, fTexCoords).rgb;
-    Normal = normalize(normal);
     viewDir = normalize(fPosEye.xyz - fPos);
 	
 	////////////////////////////////////////////////////////////
@@ -211,7 +209,7 @@ void main()
 	{
 		vec3 vectorToLight = normalize(pointLights[i].location - fPos);
 
-		if(dot(vectorToLight,Normal)>=0.0f)
+		if(dot(vectorToLight,normal)>=0.0f)
 		{
 			vec3 currentCalcPoint = CalcPointLight(pointLights[i].location,pointLights[i].color);
 			currentCalcPoint = currentCalcPoint*clamp(pointLights[i].intensity,0.0f,1.0f);
@@ -230,8 +228,23 @@ void main()
 		
 	////////////////////////////////////////////////////////////
 	float shadow = computeShadow();
-	////////////////////////////////////////////////////////////
-	vec3 shadowColor = (ambient + shadow * (diffuse + specular)) * color;   
+
+	vec3 lightDirTemp = normalize(directionalLightDir);
+	// Blinn-Phong shading model
+	vec3 halfVector = normalize(lightDirTemp + viewDir);
+    float diff = max(dot(normal, lightDirTemp), 0.0);
+    float spec = pow(max(dot(viewDir, halfVector), 0.0), shininessDirectional);
+
+    // combine results
+    ambient = ambientDirectionalStrength * color;
+	diffuse = ambientDirectionalStrength * diff * color;
+	specular = specularDirectionalStrength * spec * color;
+
+	ambient *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	diffuse *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+	specular *= vec3(pow(texture(specularTexture, fTexCoords).rgb, vec3(1.0/gamma)));
+
+	vec3 shadowColor = (ambient + (1-shadow) * (diffuse + specular)) * color;   
     
 	////////////////////////////////////////////////////////////
 	// Compute the fog factor
