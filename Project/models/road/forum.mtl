@@ -22,8 +22,8 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd texture-of-red-bricks-structure-road-ingvar-bjork.jpg
-map_Ks texture-of-red-bricks-structure-road-ingvar-bjork-Spec.png
+map_Kd road.jpg
+map_Ks road_specular.png
 
 newmtl Material.002
 Ns 225.000000
@@ -46,8 +46,8 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd texture-of-red-bricks-structure-road-ingvar-bjork.jpg
-map_Ks texture-of-red-bricks-structure-road-ingvar-bjork-Spec.png
+map_Kd road.jpg
+map_Ks road_specular.png
 
 newmtl Material.004
 Ns 225.000000
