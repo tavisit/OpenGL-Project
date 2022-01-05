@@ -35,6 +35,7 @@ GLenum glCheckError_(const char* file, int line)
 namespace gps {
     void ObjectManager::renderScene(gps::Window myWindow, gps::Camera myCamera, gps::DeltaTime deltaTime)
     {
+        programMusic.update(myCamera);
         changeDynamicComponents(deltaTime); 
            
         lightSpaceTrMatrix = computeLightSpaceTrMatrix(myWindow,myCamera);
@@ -48,37 +49,8 @@ namespace gps {
         glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        for (int index = 0; index < GRASS_NUMBER; index++)
-        {
-            grassObjects[index].drawShadow(&grass, &depthMapShader);
-        }
-        for (int index = 0; index < STREETS_NUMBER; index++)
-        {
-            streetsObjects[index].drawShadow(&street, &depthMapShader);
-        }
-        for (int index = 0; index < WALLS_NUMBER; index++)
-        {
-            wallObjects[index].drawShadow(&wall, &depthMapShader);
-        }
-        for (int index = 0; index < GATES_NUMBER; index++)
-        {
-            gatesObjects[index].drawShadow(&wallGate, &depthMapShader);
-        }
-        for (int index = 0; index < BUILDINGS_NUMBER; index++)
-        {
-            insulaRomanaObjects[index].drawShadow(&insulaRomana, &depthMapShader);
-        }
-        for (int index = 0; index < LIGHT_MAX; index++)
-        {
-            streetLampsObjects[index].drawShadow(&streetLamps, &depthMapShader);
-        }
-        waterFountainObject.drawShadow(&waterFountain, &depthMapShader);
-        forumObject.drawShadow(&forum, &depthMapShader);
-        waterPoolsObject[0].drawShadow(&waterFountainWater, &depthMapShader);
-        for (int index = 1; index < WATER_NUMBER; index++)
-        {
-            waterPoolsObject[index].drawShadow(&waterPool, &depthMapShader);
-        }
+        renderShadows();
+        
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         mainShader.useShaderProgram();
 
@@ -102,34 +74,8 @@ namespace gps {
         glBindTexture(GL_TEXTURE_2D, depthMapTexture);
         glUniform1i(glGetUniformLocation(mainShader.shaderProgram, "shadowMap"), 3);
 
-        for (int index = 0; index < GRASS_NUMBER; index++)
-        {
-            grassObjects[index].drawObject(view, &grass, &mainShader);
-        }
-        for (int index = 0; index < STREETS_NUMBER; index++)
-        {
-            streetsObjects[index].drawObject(view, &street, &mainShader);
-        }
-        for (int index = 0; index < WALLS_NUMBER; index++)
-        {
-            wallObjects[index].drawObject(view, &wall, &mainShader);
-        }
-        for (int index = 0; index < GATES_NUMBER; index++)
-        {
-            gatesObjects[index].drawObject(view, &wallGate, &mainShader);
-        }
-        for (int index = 0; index < BUILDINGS_NUMBER; index++)
-        {
-            insulaRomanaObjects[index].drawObject(view, &insulaRomana, &mainShader);
-        }
-        for (int index = 0; index < LIGHT_MAX; index++)
-        {
-            streetLampsObjects[index].drawObject(view, &streetLamps, &mainShader);
-        }
-        waterFountainObject.drawObject( view, &waterFountain, &mainShader);
-        forumObject.drawObject( view, &forum, &mainShader);
-        directionalLightSphereObject.drawObject(view, &directionalLightSphere, &mainShader);
-
+        renderModels();
+        
         for (int i = 0; i < LIGHT_MAX; i++)
         {
             glUniform3fv(i * 3, 1, glm::value_ptr(pointLights[i].location));
@@ -374,6 +320,15 @@ namespace gps {
             streetLampsObjects[index].translateAbsolute(glm::vec3((index + 1 - LIGHT_MAX / 2) * (- 50), -10.0f, 60.0f));
             pointLights[index].location = glm::vec3((index + 1 - LIGHT_MAX / 2) * (-40), 2.0f, 55.0f);
         }
+
+        stallsObjects[0].translateAbsolute(glm::vec3(55, -2.4f, 15));
+        stallsObjects[1].translateAbsolute(glm::vec3(70, -3.0f, 100));
+        stallsObjects[1].rotationDistance(180, Y_AXIS);
+        stallsObjects[2].translateAbsolute(glm::vec3(-80, -3.0f, 60));
+        stallsObjects[3].translateAbsolute(glm::vec3(-70, -3.0f, 100));
+        stallsObjects[3].rotationDistance(180, Y_AXIS);
+
+
     }
     void ObjectManager::resizeWindow(gps::Window myWindow)
     {
@@ -501,6 +456,7 @@ namespace gps {
         insulaRomana.LoadModel("models/buildings/Insulae/Insula.obj");
         forum.LoadModel("models/road/forum.obj");
         streetLamps.LoadModel("models/street_lamp/street_lamp.obj");
+        stall.LoadModel("models/stall/stall.obj");
         directionalLightSphere.LoadModel("models/cube/sun.obj");
 
         for (int i = 0; i < WALLS_NUMBER; i++)
@@ -533,6 +489,11 @@ namespace gps {
         {
             InGameObject genericObject;
             streetLampsObjects.push_back(genericObject);
+        }
+        for (int i = 0; i < STALL_NUMBER; i++)
+        {
+            InGameObject genericObject;
+            stallsObjects.push_back(genericObject);
         }
         for (int i = 0; i < WATER_NUMBER; i++)
         {
@@ -641,5 +602,78 @@ namespace gps {
             newPosition = glm::vec3(0.5f * 100 * intensity + 10, -1 * 100 * intensity + 100, 3 * 100 * intensity + 10);
         }
         return newPosition;
+    }
+    void ObjectManager::renderShadows()
+    {
+        for (int index = 0; index < GRASS_NUMBER; index++)
+        {
+            grassObjects[index].drawShadow(&grass, &depthMapShader);
+        }
+        for (int index = 0; index < STREETS_NUMBER; index++)
+        {
+            streetsObjects[index].drawShadow(&street, &depthMapShader);
+        }
+        for (int index = 0; index < WALLS_NUMBER; index++)
+        {
+            wallObjects[index].drawShadow(&wall, &depthMapShader);
+        }
+        for (int index = 0; index < GATES_NUMBER; index++)
+        {
+            gatesObjects[index].drawShadow(&wallGate, &depthMapShader);
+        }
+        for (int index = 0; index < BUILDINGS_NUMBER; index++)
+        {
+            insulaRomanaObjects[index].drawShadow(&insulaRomana, &depthMapShader);
+        }
+        for (int index = 0; index < LIGHT_MAX; index++)
+        {
+            streetLampsObjects[index].drawShadow(&streetLamps, &depthMapShader);
+        }
+        for (int index = 0; index < STALL_NUMBER; index++)
+        {
+            stallsObjects[index].drawShadow(&stall, &depthMapShader);
+        }
+        waterFountainObject.drawShadow(&waterFountain, &depthMapShader);
+        forumObject.drawShadow(&forum, &depthMapShader);
+        waterPoolsObject[0].drawShadow(&waterFountainWater, &depthMapShader);
+        for (int index = 1; index < WATER_NUMBER; index++)
+        {
+            waterPoolsObject[index].drawShadow(&waterPool, &depthMapShader);
+        }
+    }
+    void ObjectManager::renderModels()
+    {
+        for (int index = 0; index < GRASS_NUMBER; index++)
+        {
+            grassObjects[index].drawObject(view, &grass, &mainShader);
+        }
+        for (int index = 0; index < STREETS_NUMBER; index++)
+        {
+            streetsObjects[index].drawObject(view, &street, &mainShader);
+        }
+        for (int index = 0; index < WALLS_NUMBER; index++)
+        {
+            wallObjects[index].drawObject(view, &wall, &mainShader);
+        }
+        for (int index = 0; index < GATES_NUMBER; index++)
+        {
+            gatesObjects[index].drawObject(view, &wallGate, &mainShader);
+        }
+        for (int index = 0; index < BUILDINGS_NUMBER; index++)
+        {
+            insulaRomanaObjects[index].drawObject(view, &insulaRomana, &mainShader);
+        }
+        for (int index = 0; index < LIGHT_MAX; index++)
+        {
+            streetLampsObjects[index].drawObject(view, &streetLamps, &mainShader);
+        }
+        for (int index = 0; index < STALL_NUMBER; index++)
+        {
+            stallsObjects[index].drawObject(view, &stall, &mainShader);
+        }
+        waterFountainObject.drawObject( view, &waterFountain, &mainShader);
+        forumObject.drawObject( view, &forum, &mainShader);
+        directionalLightSphereObject.drawObject(view, &directionalLightSphere, &mainShader);
+
     }
 }

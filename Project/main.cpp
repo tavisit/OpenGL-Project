@@ -7,7 +7,6 @@
 #include "SkyBox.hpp"
 #include "DeltaTime.hpp"
 #include "ObjectManager.hpp"
-#include "Music.hpp"
 #include <conio.h>
 
 #include <iostream>
@@ -39,8 +38,6 @@ gps::SkyBox mySkyBox;
 gps::Shader skyboxShader;
 gps::DeltaTime deltaTime;
 
-// Music global variable
-gps::Music programMusic;
 
 // mouse event variables
 bool mouse = true;
@@ -315,7 +312,6 @@ int main(int argc, const char * argv[]) {
         deltaTime.calculateDeltaTime(true);
 
         processMovement();
-        programMusic.update(myCamera);
         renderScene();
 
 		glfwPollEvents();

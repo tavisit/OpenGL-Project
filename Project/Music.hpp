@@ -25,6 +25,7 @@ namespace gps
         /// </summary>
         /// <param name="myCamera"></param>
         void update(gps::Camera myCamera);
+
         /// <summary>
         /// Object deconstructor
         /// </summary>
@@ -38,11 +39,13 @@ namespace gps
         ISoundEngine* SoundEngine;
 
         #define WATER_NUMBER 3
+        #define WARES_NUMBER 2
+        #define WINE_NUMBER 2
 
         ISound* cityAmbiance;
         std::vector<ISound*> waterSounds;
-        ISound* waresMerchant;
-        ISound* wineMerchant;
+        std::vector<ISound*> waresMerchant;
+        std::vector<ISound*> wineMerchant;
     };
 }
 

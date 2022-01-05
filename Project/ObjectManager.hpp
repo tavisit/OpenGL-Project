@@ -10,6 +10,7 @@
 #include "DeltaTime.hpp"
 #include "InGameObject.hpp"
 #include "Colors.hpp"
+#include "Music.hpp"
 
 
 namespace gps {
@@ -139,6 +140,16 @@ namespace gps {
         /// <returns></returns>
         glm::vec3 getSunPositionByIntensity(GLfloat intensity);
 
+        /// <summary>
+        /// Method which renders all the objects shadows in the shadow pass phase
+        /// </summary>
+        void renderShadows();
+
+        /// <summary>
+        /// Method which renders the colored objects
+        /// </summary>
+        void renderModels();
+
         ////////////////////////////////////////////////////////////////
         // Shaders
         ////////////////////////////////////////////////////////////////
@@ -227,6 +238,7 @@ namespace gps {
         #define GRASS_NUMBER 210
         #define BUILDINGS_NUMBER 30
         #define WATER_NUMBER 3
+        #define STALL_NUMBER 4
 
         ////////////////////////////////////////////////////////////////
         // Actual models
@@ -241,6 +253,7 @@ namespace gps {
         gps::Model3D waterPool;
         gps::Model3D insulaRomana;
         gps::Model3D forum;
+        gps::Model3D stall;
 
         ////////////////////////////////////////////////////////////////
         // InGmaeObject instances
@@ -252,6 +265,7 @@ namespace gps {
         std::vector<gps::InGameObject> insulaRomanaObjects;
         std::vector<gps::InGameObject> waterPoolsObject;
         std::vector<gps::InGameObject> streetLampsObjects;
+        std::vector<gps::InGameObject> stallsObjects;
         gps::InGameObject waterFountainObject;
         gps::InGameObject forumObject;
 
@@ -259,6 +273,11 @@ namespace gps {
         // Color instance
         ////////////////////////////////////////////////////////////////
         Colors colorParser;
+
+        ///////////////////////////////////////////////////////////////
+        // Music global variable
+        ///////////////////////////////////////////////////////////////
+        gps::Music programMusic;
     };
 }
 
