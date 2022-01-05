@@ -405,7 +405,6 @@ namespace gps {
         directionalLightPosition = getSunPositionByIntensity(intensity);
         if (intensity > 1.75) // (1.75f,2.0f]
         {
-            directionalLightColor = colorParser.convertFromHEXToVector("5c2d04");
             for (int i = 0; i < LIGHT_MAX; i++)
             {
                 pointLights[i].intensity = 1.0f;
@@ -413,7 +412,6 @@ namespace gps {
         }
         else if (intensity >= 1.5) // [1.5f,1.75f]
         {
-            directionalLightColor = colorParser.convertFromHEXToVector("ffe4c9");
             for (int i = 0; i < LIGHT_MAX; i++)
             {
                 pointLights[i].intensity = 1.0f - (1.75f - intensity)*4;
