@@ -41,14 +41,10 @@ gps::DeltaTime deltaTime;
 // Music global variable
 gps::Music programMusic;
 
-// Night/Day variables
-bool nightTime = false;
-bool dayTime = false;
-
 // mouse event variables
 bool mouse = true;
-float lastX = 400, lastY = 300;
-float yaw = -90.0f, pitch;
+float lastX, lastY;
+float yaw = 90.0f, pitch;
 
 // Window resize callback
 void windowResizeCallback(GLFWwindow* window, int width, int height) {
@@ -307,6 +303,7 @@ int main(int argc, const char * argv[]) {
     initSkyBoxShader();
     deltaTime.initializeDeltaTime();
     writeCredits();
+    myCamera.rotate(pitch, yaw);
 
 	// application loop
 	while (!glfwWindowShouldClose(myWindow.getWindow())) {
