@@ -10,7 +10,8 @@
 #include "DeltaTime.hpp"
 #include "InGameObject.hpp"
 #include "Colors.hpp"
-#include "Music.hpp"
+#include <irrKlang.h>
+using namespace irrklang;
 
 
 namespace gps {
@@ -223,11 +224,11 @@ namespace gps {
         /// <summary>
         /// Shadow width resolution
         /// </summary>
-        const unsigned int SHADOW_WIDTH = 1024 * 2;
+        const unsigned int SHADOW_WIDTH = 1024 * 8;
         /// <summary>
         /// Shadow height resolution
         /// </summary>
-        const unsigned int SHADOW_HEIGHT = 1024 * 2;
+        const unsigned int SHADOW_HEIGHT = 1024 * 8;
 
         ////////////////////////////////////////////////////////////////
         // Objects numbers
@@ -236,7 +237,7 @@ namespace gps {
         #define GATES_NUMBER 4
         #define STREETS_NUMBER 40
         #define GRASS_NUMBER 210
-        #define BUILDINGS_NUMBER 30
+        #define BUILDINGS_NUMBER 34
         #define WATER_NUMBER 3
         #define STALL_NUMBER 4
 
@@ -277,7 +278,7 @@ namespace gps {
         ///////////////////////////////////////////////////////////////
         // Music global variable
         ///////////////////////////////////////////////////////////////
-        gps::Music programMusic;
+        ISoundEngine* SoundEngine;
     };
 }
 

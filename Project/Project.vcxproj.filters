@@ -58,9 +58,6 @@
     <ClCompile Include="Colors.cpp">
       <Filter>Files\Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="Music.cpp">
-      <Filter>Files\High-Level</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Colors.hpp">
@@ -101,9 +98,6 @@
     </ClInclude>
     <ClInclude Include="Window.h">
       <Filter>Files\Low-Level</Filter>
-    </ClInclude>
-    <ClInclude Include="Music.hpp">
-      <Filter>Files\High-Level</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -65,6 +65,11 @@ namespace gps {
         newDirection *= speed;
         location += newDirection;
         objectChanged();
+        // recalculate the sound position
+        if (sound != NULL)
+        {
+            sound->setPosition(vec3df(location.x, location.y, location.z));
+        }
     }
     void InGameObject::rotationDistance(GLfloat angle, ROTATION_DIRECTION rotationDirection, GLfloat speed)
     {
@@ -97,6 +102,11 @@ namespace gps {
     {
         this->location = translation * speed;
         objectChanged();
+        // recalculate the sound position
+        if (sound != NULL)
+        {
+            sound->setPosition(vec3df(location.x, location.y, location.z));
+        }
     }
     void InGameObject::rotationAbsolute(glm::vec3 rotation, GLfloat speed)
     {
@@ -140,5 +150,18 @@ namespace gps {
     void InGameObject::setAlpha(float alpha)
     {
         this->alpha = alpha;
+    }
+
+    void InGameObject::initializeSounds(ISoundEngine* SoundEngine, const char* soundsPath)
+    {
+        sound = SoundEngine->play3D(soundsPath, vec3df(this->location.x, this->location.y, this->location.z), true, false, true);
+        sound->setVolume(1.0f);
+        sound->setMinDistance(2.0f);
+    }
+    void InGameObject::initializeSounds(ISoundEngine* SoundEngine, const char* soundsPath, float volumeSound, float minDistance)
+    {
+        sound = SoundEngine->play3D(soundsPath, vec3df(this->location.x, this->location.y, this->location.z), true, false, true);
+        sound->setVolume(volumeSound);
+        sound->setMinDistance(minDistance);
     }
 }

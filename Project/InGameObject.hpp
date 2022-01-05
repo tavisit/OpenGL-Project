@@ -8,6 +8,8 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <irrKlang.h>
+using namespace irrklang;
 
 namespace gps {
     /// <summary>
@@ -113,8 +115,22 @@ namespace gps {
         /// </summary>
         /// <param name="alpha"></param>
         void setAlpha(float alpha);
-    private:
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="SoundEngine"></param>
+        /// <param name="soundsPath"></param>
+        void initializeSounds(ISoundEngine* SoundEngine, const char* soundsPath);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="SoundEngine"></param>
+        /// <param name="soundsPath"></param>
+        /// <param name="volumeSound"></param>
+        /// <param name="minDistance"></param>
+        void initializeSounds(ISoundEngine* SoundEngine, const char* soundsPath, float volumeSound, float minDistance);
+    private:
         ////////////////////////////////////////////////////////////////
         // Private variables
         ////////////////////////////////////////////////////////////////
@@ -126,6 +142,7 @@ namespace gps {
         glm::vec3 scale;
 
         float alpha = 1.0f;
+        ISound* sound;
     };
 }
 

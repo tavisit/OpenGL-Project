@@ -35,7 +35,10 @@ GLenum glCheckError_(const char* file, int line)
 namespace gps {
     void ObjectManager::renderScene(gps::Window myWindow, gps::Camera myCamera, gps::DeltaTime deltaTime)
     {
-        programMusic.update(myCamera);
+        vec3df cameraPosition = vec3df(myCamera.getCameraPosition().x, myCamera.getCameraPosition().y, myCamera.getCameraPosition().z);
+        vec3df cameraDirection = vec3df(myCamera.getCameraFrontDirection().x, myCamera.getCameraFrontDirection().y, myCamera.getCameraFrontDirection().z);
+        SoundEngine->setListenerPosition(cameraPosition, cameraDirection);
+
         changeDynamicComponents(deltaTime); 
            
         lightSpaceTrMatrix = computeLightSpaceTrMatrix(myWindow,myCamera);
@@ -132,11 +135,16 @@ namespace gps {
     void ObjectManager::initObjectManager(gps::Window myWindow, gps::Camera myCamera)
     {
         srand(time(NULL));
+        SoundEngine = createIrrKlangDevice();
+
         initModels();
         initObjectsModels(myWindow, myCamera);
         initFBO();
         initShaders();
         initUniforms(myWindow);
+
+        ISound* cityAmbiance = SoundEngine->play2D("Music/city_humming.wav", true, false, true);
+        cityAmbiance->setVolume(0.2);
     }
     void ObjectManager::initObjectsModels(gps::Window myWindow, gps::Camera myCamera)
     {
@@ -320,6 +328,11 @@ namespace gps {
             streetLampsObjects[index].translateAbsolute(glm::vec3((index + 1 - LIGHT_MAX / 2) * (- 50), -10.0f, 60.0f));
             pointLights[index].location = glm::vec3((index + 1 - LIGHT_MAX / 2) * (-40), 2.0f, 55.0f);
         }
+
+        stallsObjects[0].initializeSounds(SoundEngine, "Music/Wine.mp3");
+        stallsObjects[1].initializeSounds(SoundEngine, "Music/Wares.mp3");
+        stallsObjects[2].initializeSounds(SoundEngine, "Music/Wares.mp3");
+        stallsObjects[3].initializeSounds(SoundEngine, "Music/Wine.mp3");
 
         stallsObjects[0].translateAbsolute(glm::vec3(55, -2.4f, 15));
         stallsObjects[1].translateAbsolute(glm::vec3(70, -3.0f, 100));
@@ -559,7 +572,7 @@ namespace gps {
 
     glm::mat4 ObjectManager::computeLightSpaceTrMatrix(gps::Window myWindow, gps::Camera myCamera)
     {
-        const GLfloat near_plane = 30.0f, far_plane = glm::length(directionalLightPosition - glm::vec3(0, -2.0f, 80.0f))+160.0f;
+        const GLfloat near_plane = 30.0f, far_plane = glm::length(directionalLightPosition - glm::vec3(0, -2.0f, 80.0f))+100.0f;
         glm::mat4 lightProjection = glm::ortho(
             -200.0f,
             200.0f,

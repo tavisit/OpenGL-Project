@@ -277,11 +277,11 @@ void main()
 	float shadowConstant =1.0f;
 	if(compareVec3(directionalLightColor,vec3(0.36,0.17,0.015))>0 && compareVec3(directionalLightColor,vec3(0.37,0.19,0.02))>0) // 5c2d04
 	{
-		shadowConstant = 2.0;
+		shadowConstant = 4.0;
 	}
 	else if(compareVec3(directionalLightColor,vec3(0.9,0.88,0.77))>0) // ffe4c9
 	{
-		shadowConstant = 4.0;
+		shadowConstant = 16.0;
 	}
 	////////////////////////////////////////////////////////////
 	vec3 shadowColor = (ambient + (1-shadow) * shadowConstant * (diffuse + specular)) * color; 
