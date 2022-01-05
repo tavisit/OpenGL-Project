@@ -212,11 +212,11 @@ namespace gps {
         /// <summary>
         /// Shadow width resolution
         /// </summary>
-        const unsigned int SHADOW_WIDTH = 1024* 16 * 1.77;
+        const unsigned int SHADOW_WIDTH = 1024 * 2;
         /// <summary>
         /// Shadow height resolution
         /// </summary>
-        const unsigned int SHADOW_HEIGHT = 1024 * 16;
+        const unsigned int SHADOW_HEIGHT = 1024 * 2;
 
         ////////////////////////////////////////////////////////////////
         // Objects numbers

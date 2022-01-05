@@ -42,10 +42,8 @@ namespace gps {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         depthMapShader.useShaderProgram();
 
-        glUniformMatrix4fv(glGetUniformLocation(depthMapShader.shaderProgram, "lightSpaceTrMatrix"),
-            1,
-            GL_FALSE,
-            glm::value_ptr(lightSpaceTrMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(depthMapShader.shaderProgram, "lightSpaceTrMatrix"),1,GL_FALSE,glm::value_ptr(lightSpaceTrMatrix));
+
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -81,7 +79,6 @@ namespace gps {
         {
             waterPoolsObject[index].drawShadow(&waterPool, &depthMapShader);
         }
-
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         mainShader.useShaderProgram();
 
@@ -98,8 +95,8 @@ namespace gps {
         glUniformMatrix3fv(glGetUniformLocation(mainShader.shaderProgram, "lightDirMatrix"), 1, GL_FALSE, glm::value_ptr(lightDirMatrix));
 
         glViewport(0, 0, myWindow.getWindowDimensions().width, myWindow.getWindowDimensions().height);
-
         mainShader.useShaderProgram();
+
         // bind the depth map
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_2D, depthMapTexture);
@@ -405,6 +402,7 @@ namespace gps {
         directionalLightPosition = getSunPositionByIntensity(intensity);
         if (intensity > 1.75) // (1.75f,2.0f]
         {
+            directionalLightColor = colorParser.convertFromHEXToVector("5c2d04");
             for (int i = 0; i < LIGHT_MAX; i++)
             {
                 pointLights[i].intensity = 1.0f;
@@ -412,6 +410,7 @@ namespace gps {
         }
         else if (intensity >= 1.5) // [1.5f,1.75f]
         {
+            directionalLightColor = colorParser.convertFromHEXToVector("ffe4c9");
             for (int i = 0; i < LIGHT_MAX; i++)
             {
                 pointLights[i].intensity = 1.0f - (1.75f - intensity)*4;
@@ -552,7 +551,7 @@ namespace gps {
     {
         projection = glm::perspective(glm::radians(FOV), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
         // set light color
-        setDirectionalLightIntensity(0.4f);
+        setDirectionalLightIntensity(1.0f);
         mainShader.useShaderProgram();
         glUniformMatrix4fv(glGetUniformLocation(mainShader.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         for (int i = 0; i < LIGHT_MAX; i++)
@@ -599,12 +598,12 @@ namespace gps {
 
     glm::mat4 ObjectManager::computeLightSpaceTrMatrix(gps::Window myWindow, gps::Camera myCamera)
     {
-        const GLfloat near_plane = 0.1f, far_plane = 300.0f;
+        const GLfloat near_plane = 30.0f, far_plane = glm::length(directionalLightPosition - glm::vec3(0, -2.0f, 80.0f))+160.0f;
         glm::mat4 lightProjection = glm::ortho(
-            -500.0f,
-            500.0f,
-            -500.0f,
-            500.0f,
+            -200.0f,
+            200.0f,
+            -200.0f,
+            200.0f,
             near_plane,
             far_plane);
 

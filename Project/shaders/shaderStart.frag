@@ -160,13 +160,15 @@ vec3 computeLightSpotComponents(vec3 spotLightPosition, vec3 spotLightDirection)
 float computeShadow()
 {	
 	// perform perspective divide
-    vec3 normalizedCoords = fPosLightSpace.xyz / fPosLightSpace.w;		
+    vec3 normalizedCoords = fPosLightSpace.xyz / fPosLightSpace.w;
     normalizedCoords = normalizedCoords *0.5f+0.5f;
-
+	
+	if(normalizedCoords.z > 1.0)
+        return 0.0;
+			
 	float currentDepth = normalizedCoords.z;
     float closestDepth = texture(shadowMap,normalizedCoords.xy).r;
-    float bias =  max(0.05 * (1.0 - dot(normal, directionalLightDir)), 0.005);
-
+    float bias = 0.005;
 
 	//Percentage-closer filtering
 	float shadow = 0.0;
