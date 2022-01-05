@@ -8,6 +8,7 @@
 #include "DeltaTime.hpp"
 #include "ObjectManager.hpp"
 #include "Music.hpp"
+#include <conio.h>
 
 #include <iostream>
 
@@ -288,6 +289,11 @@ void writeCredits()
 }
 int main(int argc, const char * argv[]) {
     
+
+    writeCredits();
+    system("pause");
+    printf("Loading...\n");
+
     try {
         initOpenGLWindow();
     } catch (const std::exception& e) {
@@ -302,7 +308,6 @@ int main(int argc, const char * argv[]) {
     initFaces();
     initSkyBoxShader();
     deltaTime.initializeDeltaTime();
-    writeCredits();
     myCamera.rotate(pitch, yaw);
 
 	// application loop
