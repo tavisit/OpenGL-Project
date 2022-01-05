@@ -119,9 +119,9 @@ vec3 CalcDirLight()
     float spec = pow(max(dot(viewDir, halfVector), 0.0), shininessDirectional);
 
     // combine results
-    vec3 ambient = ambientDirectionalStrength * directionalLightColor;
-	vec3 diffuse = ambientDirectionalStrength * diff * directionalLightColor;
-	vec3 specular = specularDirectionalStrength * spec * directionalLightColor;
+    ambient = ambientDirectionalStrength * directionalLightColor;
+	diffuse = ambientDirectionalStrength * diff * directionalLightColor;
+	specular = specularDirectionalStrength * spec * directionalLightColor;
 
 	ambient *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
 	diffuse *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
@@ -194,6 +194,49 @@ float computeFog()
  return clamp(fogFactor, 0.0f, 1.0f);
 }
 
+int compareVec3(vec3 a, vec3 b)
+{
+	if(a.x > b.x)
+	{
+		if(a.y > b.y)
+		{
+			if(a.z > b.z)
+			{
+				return 3;
+			}
+			else
+			{
+				return 2;
+			}
+		}
+		else
+		{
+			return 1;
+		}
+	}
+	else if(a.x < b.x)
+	{
+		if(a.y < b.y)
+		{
+			if(a.z < b.z)
+			{
+				return -3;
+			}
+			else
+			{
+				return -2;
+			}
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else
+	{
+		return 0;
+	}
+}
 ////////////////////////////////////////////////////////////
 void main() 
 {
@@ -228,23 +271,18 @@ void main()
 		
 	////////////////////////////////////////////////////////////
 	float shadow = computeShadow();
-
-	vec3 lightDirTemp = normalize(directionalLightDir);
-	// Blinn-Phong shading model
-	vec3 halfVector = normalize(lightDirTemp + viewDir);
-    float diff = max(dot(normal, lightDirTemp), 0.0);
-    float spec = pow(max(dot(viewDir, halfVector), 0.0), shininessDirectional);
-
-    // combine results
-    ambient = ambientDirectionalStrength * color;
-	diffuse = ambientDirectionalStrength * diff * color;
-	specular = specularDirectionalStrength * spec * color;
-
-	ambient *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
-	diffuse *= vec3(pow(texture(diffuseTexture, fTexCoords).rgb, vec3(1.0/gamma)));
-	specular *= vec3(pow(texture(specularTexture, fTexCoords).rgb, vec3(1.0/gamma)));
-
-	vec3 shadowColor = (ambient + (1-shadow) * (diffuse + specular)) * color;   
+	
+	float shadowConstant =1.0f;
+	if(compareVec3(directionalLightColor,vec3(0.36,0.17,0.015))>0 && compareVec3(directionalLightColor,vec3(0.37,0.19,0.02))>0) // 5c2d04
+	{
+		shadowConstant = 2.0;
+	}
+	else if(compareVec3(directionalLightColor,vec3(0.9,0.88,0.77))>0) // ffe4c9
+	{
+		shadowConstant = 4.0;
+	}
+	////////////////////////////////////////////////////////////
+	vec3 shadowColor = (ambient + (1-shadow) * shadowConstant * (diffuse + specular)) * color; 
     
 	////////////////////////////////////////////////////////////
 	// Compute the fog factor

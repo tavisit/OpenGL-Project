@@ -194,6 +194,50 @@ float computeFog()
  return clamp(fogFactor, 0.0f, 1.0f);
 }
 
+int compareVec3(vec3 a, vec3 b)
+{
+	if(a.x > b.x)
+	{
+		if(a.y > b.y)
+		{
+			if(a.z > b.z)
+			{
+				return 3;
+			}
+			else
+			{
+				return 2;
+			}
+		}
+		else
+		{
+			return 1;
+		}
+	}
+	else if(a.x < b.x)
+	{
+		if(a.y < b.y)
+		{
+			if(a.z < b.z)
+			{
+				return -3;
+			}
+			else
+			{
+				return -2;
+			}
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 ////////////////////////////////////////////////////////////
 void main() 
 {
@@ -228,9 +272,19 @@ void main()
 	}
 		
 	////////////////////////////////////////////////////////////
+	
 	float shadow = computeShadow();
+	float shadowConstant =1.0f;
+	if(compareVec3(directionalLightColor,vec3(0.36,0.17,0.015))>3 && compareVec3(directionalLightColor,vec3(0.37,0.19,0.02))>3) // 5c2d04
+	{
+		shadowConstant = 2.0;
+	}
+	else if(compareVec3(directionalLightColor,vec3(0.9,0.88,0.77))>3) // ffe4c9
+	{
+		shadowConstant = 4.0;
+	}
 	////////////////////////////////////////////////////////////
-	vec3 shadowColor = (ambient + (1-shadow) * (diffuse + specular)) * color;   
+	vec3 shadowColor = (ambient + (1-shadow) * shadowConstant * (diffuse + specular)) * color; 
     
 	////////////////////////////////////////////////////////////
 	// Compute the fog factor
