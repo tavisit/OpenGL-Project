@@ -86,6 +86,16 @@ namespace gps {
         /// <returns></returns>
         glm::mat4 getProjection(gps::Window myWindow);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newFov"></param>
+        void setFOV(float newFov, gps::Window myWindow);
+        /// <summary>
+        /// 
+        /// </summary>
+        float getFOV();
+
     private:
 
         ////////////////////////////////////////////////////////////////
@@ -219,7 +229,7 @@ namespace gps {
         ////////////////////////////////////////////////////////////////
         // FOV
         ////////////////////////////////////////////////////////////////
-        #define FOV 45.0f
+        float FOV = 45.0f;
 
         /// <summary>
         /// Shadow width resolution

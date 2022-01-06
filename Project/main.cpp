@@ -75,6 +75,10 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
         }
     }
 }
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    objectManager.setFOV(objectManager.getFOV() - yoffset * deltaTime.getDeltaTime() * 16, myWindow);
+}
 void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
     if (mouse)
     {
@@ -88,7 +92,7 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
     lastX = xpos;
     lastY = ypos;
 
-    float sensitivity = 0.1f* deltaTime.getRotationSpeed();
+    float sensitivity = 0.1f * deltaTime.getRotationSpeed();
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
@@ -102,11 +106,12 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 
     myCamera.rotate(pitch, yaw);
 }
+float movementSpeed = 4.0f;
 void processMovement() {
-    float actualMovementSpeed = cameraSpeed * deltaTime.getTranslationSpeed();
+    float actualMovementSpeed = cameraSpeed * deltaTime.getTranslationSpeed() * movementSpeed;
 
     if (pressedKeys[GLFW_KEY_LEFT_SHIFT]) {
-        actualMovementSpeed *= 16;
+        actualMovementSpeed *= 4;
     }
 
 	if (pressedKeys[GLFW_KEY_W]) {
@@ -128,6 +133,24 @@ void processMovement() {
 		myCamera.move(gps::MOVE_RIGHT, actualMovementSpeed);
         
 	}
+
+    if (pressedKeys[GLFW_KEY_COMMA]) {
+        if (movementSpeed > 4.0f)
+        {
+            movementSpeed -= 3 * deltaTime.getDeltaTime();
+        }
+        printf("movementSpeed %f\n", movementSpeed);
+
+    }
+
+    if (pressedKeys[GLFW_KEY_PERIOD]) {
+        if (movementSpeed < 16.0f)
+        {
+            movementSpeed -= 3 * deltaTime.getDeltaTime();
+        }
+        printf("movementSpeed %f\n", movementSpeed);
+
+    }
 
     if (pressedKeys[GLFW_KEY_G]) {
         glfwSetWindowMonitor(myWindow.getWindow(), nullptr, 100, 100, verticalWindowed, horizontalWindowed, GLFW_DONT_CARE);
@@ -226,7 +249,8 @@ void initOpenGLWindow() {
 void setWindowCallbacks() {
 	glfwSetWindowSizeCallback(myWindow.getWindow(), windowResizeCallback);
     glfwSetKeyCallback(myWindow.getWindow(), keyboardCallback);
-    glfwSetCursorPosCallback(myWindow.getWindow(), mouseCallback);
+    glfwSetCursorPosCallback(myWindow.getWindow(), mouseCallback); 
+    glfwSetScrollCallback(myWindow.getWindow(), scroll_callback);
     glfwSetInputMode(myWindow.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
@@ -267,21 +291,25 @@ void writeCredits()
     std::cout << "\n\n            Code Ideas\n\n";
     std::cout << "Vertex position pseudo random generator: https://www.geeks3d.com/20100831/shader-library-noise-and-pseudo-random-number-generator-in-glsl/ \n";
     std::cout << "\n\nControls\n";
-    std::cout << "- WASD for movement\n";
-    std::cout << "- Mouse to look around\n";
-    std::cout << "- G windowed mode\n";
-    std::cout << "- F fullscreen mode\n";
-    std::cout << "- K walking mode\n";
-    std::cout << "- L fly mode\n";
-    std::cout << "- N autoday on\n";
-    std::cout << "- M autoday off\n";
-    std::cout << "- - decrease time of day\n";
-    std::cout << "- + increase time of day\n";
-    std::cout << "- 1 turn on flashlight\n";
-    std::cout << "- 2 turn off flashlight\n";
-    std::cout << "- 7 GL_LINE vision mode\n";
-    std::cout << "- 8 GL_POINT vision mode\n";
-    std::cout << "- 9 GL_FILL vision mode\n";
+    std::cout << "* WASD for movement\n";
+    std::cout << "* Mouse to look around\n";
+    std::cout << "* Scroll to change FOV\n";
+    std::cout << "* G windowed mode\n";
+    std::cout << "* F fullscreen mode\n";
+    std::cout << "* K walking mode\n";
+    std::cout << "* L fly mode\n";
+    std::cout << "* N autoday on\n";
+    std::cout << "* M autoday off\n";
+    std::cout << "* if autoday off then:\n";
+    std::cout << "          * - decrease time of day\n";
+    std::cout << "          * + increase time of day\n";
+    std::cout << "* , decrease movement speed\n";
+    std::cout << "* . increase movement speed\n";
+    std::cout << "* 1 turn on flashlight\n";
+    std::cout << "* 2 turn off flashlight\n";
+    std::cout << "* 7 GL_LINE vision mode\n";
+    std::cout << "* 8 GL_POINT vision mode\n";
+    std::cout << "* 9 GL_FILL vision mode\n";
     std::cout << "\n\n\n";
 }
 int main(int argc, const char * argv[]) {

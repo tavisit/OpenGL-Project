@@ -162,7 +162,7 @@ namespace gps {
         gatesObjects[3].translateDistance( 160, gps::MOVE_LEFT, 1);
 
         waterFountainObject.translateDistance(80, gps::MOVE_BACKWARD, 1);
-        waterFountainObject.translateDistance(3, gps::MOVE_DOWN, 1);
+        waterFountainObject.translateDistance(3.1, gps::MOVE_DOWN, 1);
         waterFountainObject.scaleDistance(4);
 
         waterPoolsObject[0].translateDistance(80, gps::MOVE_BACKWARD, 1);
@@ -364,6 +364,27 @@ namespace gps {
     {
         projection = glm::perspective(glm::radians(FOV), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
         return projection;
+    }
+    void ObjectManager::setFOV(float newFov, gps::Window myWindow)
+    {
+        if (newFov >= 30.0f && newFov <= 90.0f)
+        {
+            this->FOV = newFov;
+
+            projection = glm::perspective(glm::radians(FOV), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
+
+            mainShader.useShaderProgram();
+            GLint projLoc = glGetUniformLocation(mainShader.shaderProgram, "projection");
+            glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+            waterShader.useShaderProgram();
+            projLoc = glGetUniformLocation(waterShader.shaderProgram, "projection");
+            glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+        }
+    }
+    float ObjectManager::getFOV()
+    {
+        return FOV;
     }
     void ObjectManager::setDirectionalLightIntensity(GLfloat intensity)
     {
