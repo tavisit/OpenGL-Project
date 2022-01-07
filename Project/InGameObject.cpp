@@ -34,7 +34,7 @@ namespace gps {
         glm::mat4 modelTranslate = glm::translate(glm::mat4(1.0f), location);
         glm::mat4 modelScaled = glm::scale(glm::mat4(1.0f), scale);
 
-        model = modelTranslate * modelScaled * modelRotate;
+        model = modelTranslate * modelRotate  * modelScaled;
     }
     void InGameObject::translateDistance(GLfloat distance, MOVE_DIRECTION moveDirection, GLfloat speed)
     {

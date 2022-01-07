@@ -9,6 +9,9 @@
 #include <glm/gtc/type_ptr.hpp> //glm extension for accessing the internal data structure of glm types
 #include <glm/gtx/transform.hpp>
 
+#include <iostream>
+#include <vector>
+
 namespace gps {
     /// <summary>
     /// Enum that stores the move directions for Camera and InGameObject usage

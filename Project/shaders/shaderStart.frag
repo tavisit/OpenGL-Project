@@ -180,8 +180,8 @@ float computeShadow()
 
 	// at the distance of >= 50.0f units, render pcf resolution of 1x1
 	// at the distance of <= 5.0f units, render pdf resolution of 11x11
-	// everything in between, render at pcf resolution between 9x9 and 1x1
-	int rangeShadow = max(0, int(-0.111111*length(fPosEye) + 5.555556));
+	// everything in between, render at pcf resolution between 11x11 and 1x1
+	int rangeShadow = max(0, min(5,int(-0.111111*length(fPosEye) + 5.555556)));
 
 	for(int x=-rangeShadow;x<=rangeShadow;++x)
 	{

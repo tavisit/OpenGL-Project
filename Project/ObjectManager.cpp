@@ -211,13 +211,13 @@ namespace gps {
         {
             streetsObjects[index].translateDistance( 3, gps::MOVE_DOWN, 1);
             streetsObjects[index].scaleDistance( 2);
-            streetsObjects[index].translateDistance( index * 12 * 2, gps::MOVE_FORWARD, 1);
+            streetsObjects[index].translateDistance( index * 12 * 2.012, gps::MOVE_FORWARD, 1);
         }
         for (int index = STREETS_NUMBER / 4; index < STREETS_NUMBER / 2; index++)
         {
             streetsObjects[index].translateDistance( 3, MOVE_DOWN, 1);
             streetsObjects[index].scaleDistance(2);
-            streetsObjects[index].translateDistance( (index - STREETS_NUMBER / 4 + 1) * 12 * 2, gps::MOVE_BACKWARD, 1);
+            streetsObjects[index].translateDistance( (index - STREETS_NUMBER / 4 + 1) * 12 * 2.012, gps::MOVE_BACKWARD, 1);
         }
         for (int index = STREETS_NUMBER / 2; index < 3 * STREETS_NUMBER / 4; index++)
         {
@@ -225,7 +225,7 @@ namespace gps {
             streetsObjects[index].translateDistance( 80, gps::MOVE_BACKWARD, 1);
             streetsObjects[index].scaleDistance(2);
             streetsObjects[index].rotationAbsolute( glm::vec3(0.0f, 90.0f, 0.0f));
-            streetsObjects[index].translateDistance( (index - STREETS_NUMBER / 2) * 12 * 2, gps::MOVE_RIGHT, 1);
+            streetsObjects[index].translateDistance( (index - STREETS_NUMBER / 2) * 12 * 2.012, gps::MOVE_RIGHT, 1);
         }
         for (int index = 3 * STREETS_NUMBER / 4; index < STREETS_NUMBER; index++)
         {
@@ -233,7 +233,7 @@ namespace gps {
             streetsObjects[index].translateDistance( 80, gps::MOVE_BACKWARD, 1);
             streetsObjects[index].scaleDistance(2);
             streetsObjects[index].rotationAbsolute( glm::vec3(0.0f, 90.0f, 0.0f));
-            streetsObjects[index].translateDistance( (index - 3 * STREETS_NUMBER / 4 + 1) * 12 * 2, gps::MOVE_LEFT, 1);
+            streetsObjects[index].translateDistance( (index - 3 * STREETS_NUMBER / 4 + 1) * 12 * 2.012, gps::MOVE_LEFT, 1);
         }
 
         for (int index = 0; index < GRASS_NUMBER; index++)

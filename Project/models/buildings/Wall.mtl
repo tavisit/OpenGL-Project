@@ -10,6 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump ..\\..\\textures\\Stone_normal.jpg
 map_Kd ..\\..\\textures\\Stone.jpg
 map_Ks ..\\..\\textures\\Stone_specular.jpg
 
@@ -22,6 +23,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump ..\\..\\textures\\Wood_normal.png
 map_Kd ..\\..\\textures\\Wood.jpg
 map_Ks ..\\..\\textures\\Wood_specular.png
 
@@ -34,5 +36,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump ..\\..\\textures\\RedWood_normal.png
 map_Kd ..\\..\\textures\\RedWood.jpg
 map_Ks ..\\..\\textures\\RedWood_specular.png

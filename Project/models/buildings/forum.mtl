@@ -10,6 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
+map_Bump ..\\..\\textures\\statue_normal.png
 map_Kd ..\\..\\textures\\statue.jpg
 map_Ks ..\\..\\textures\\statue_specular.png
 
@@ -22,6 +23,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump ..\\..\\textures\\road_normal.png
 map_Kd ..\\..\\textures\\road.jpg
 map_Ks ..\\..\\textures\\road_specular.png
 
@@ -34,6 +36,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump ..\\..\\textures\\Marble_normal.png
 map_Kd ..\\..\\textures\\Marble.jpg
 map_Ks ..\\..\\textures\\Marble_specular.png
 
@@ -46,6 +49,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump ..\\..\\textures\\RedWood_normal.png
 map_Kd ..\\..\\textures\\RedWood.jpg
 map_Ks ..\\..\\textures\\RedWood_specular.png
 
