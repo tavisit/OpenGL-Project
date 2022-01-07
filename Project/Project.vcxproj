@@ -55,7 +55,6 @@
     <None Include="shaders\simpleDepthMap.vert" />
     <None Include="shaders\skyboxShader.frag" />
     <None Include="shaders\skyboxShader.vert" />
-    <None Include="shaders\waterShader.frag" />
     <None Include="shaders\waterShader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

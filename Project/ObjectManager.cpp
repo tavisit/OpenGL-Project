@@ -53,7 +53,6 @@ namespace gps {
         glClear(GL_DEPTH_BUFFER_BIT);
 
         renderShadows();
-        
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         mainShader.useShaderProgram();
 
@@ -480,18 +479,28 @@ namespace gps {
     }
     void ObjectManager::initModels()
     {
+        // building models
+
         wallGate.LoadModel("models/buildings/WallGate.obj");
         wall.LoadModel("models/buildings/Wall.obj");
-        grass.LoadModel("models/grass/grass.obj");
-        street.LoadModel("models/road/road.obj");
         waterFountain.LoadModel("models/buildings/waterFountain.obj");
+        insulaRomana.LoadModel("models/buildings/insulae.obj");
+        forum.LoadModel("models/buildings/forum.obj");
+        streetLamps.LoadModel("models/buildings/street_lamp.obj");
+        stall.LoadModel("models/buildings/stall.obj");
+
+        // ground models
+
+        street.LoadModel("models/ground/road.obj");
+        grass.LoadModel("models/ground/grass.obj");
+
+        // sun models
+
+        directionalLightSphere.LoadModel("models/sun/sun.obj");
+
+        // water models
         waterFountainWater.LoadModel("models/water/water.obj");
         waterPool.LoadModel("models/water/pond.obj");
-        insulaRomana.LoadModel("models/buildings/Insulae/Insula.obj");
-        forum.LoadModel("models/road/forum.obj");
-        streetLamps.LoadModel("models/street_lamp/street_lamp.obj");
-        stall.LoadModel("models/stall/stall.obj");
-        directionalLightSphere.LoadModel("models/cube/sun.obj");
 
         for (int i = 0; i < WALLS_NUMBER; i++)
         {
@@ -540,7 +549,7 @@ namespace gps {
     {
         mainShader.loadShader("shaders/shaderStart.vert", "shaders/shaderStart.frag");
         depthMapShader.loadShader("shaders/simpleDepthMap.vert", "shaders/simpleDepthMap.frag");
-        waterShader.loadShader("shaders/waterShader.vert", "shaders/waterShader.frag");
+        waterShader.loadShader("shaders/waterShader.vert", "shaders/shaderStart.frag");
     }
     void ObjectManager::initUniforms(gps::Window myWindow)
     {
@@ -593,12 +602,12 @@ namespace gps {
 
     glm::mat4 ObjectManager::computeLightSpaceTrMatrix(gps::Window myWindow, gps::Camera myCamera)
     {
-        const GLfloat near_plane = 30.0f, far_plane = glm::length(directionalLightPosition - glm::vec3(0, -2.0f, 80.0f))+100.0f;
+        const GLfloat near_plane = 20.0f, far_plane = glm::length(directionalLightPosition - glm::vec3(0, -2.0f, 80.0f))+100.0f;
         glm::mat4 lightProjection = glm::ortho(
-            -200.0f,
-            200.0f,
-            -200.0f,
-            200.0f,
+            -160.0f,
+            160.0f,
+            -160.0f,
+            160.0f,
             near_plane,
             far_plane);
 
@@ -618,7 +627,7 @@ namespace gps {
             {
                 directionalLightIntensity = 2.0f;
             }
-            setDirectionalLightIntensity(directionalLightIntensity - 0.01f * deltaTime.getDeltaTime());
+            setDirectionalLightIntensity(directionalLightIntensity - 0.001f * deltaTime.getDeltaTime());
         }
         directionalLightSphereObject.translateAbsolute(directionalLightPosition);
     }

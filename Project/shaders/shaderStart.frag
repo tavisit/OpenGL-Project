@@ -6,6 +6,10 @@ in vec2 fTexCoords;
 
 in vec3 fPos;
 
+in float shininessFromDirectional;
+in float shininessFromPoint;
+in float shininessFromSpot;
+
 out vec4 fColor;
 
 ////////////////////////////////////////////////////////////
@@ -20,7 +24,7 @@ uniform sampler2D shadowMap;
 
 float ambientDirectionalStrength = 0.4f;
 float specularDirectionalStrength = 0.6f;
-float shininessDirectional = 64.0f;
+float shininessDirectional;
 
 uniform	vec3 directionalLightColor;
 uniform	vec3 directionalLightPosition;
@@ -41,7 +45,7 @@ layout(location = 0) uniform POINT_LIGHT pointLights[LIGHT_MAX]; // locations [0
 
 float ambientPointStrength = 0.5f;
 float specularPointStrength = 0.5f;
-float shininessPoint = 32.0f;
+float shininessPoint;
 
 float pointConstant = 1.0f;
 float pointLinear = 0.0225f;
@@ -57,7 +61,7 @@ vec3 spotLightColor = vec3(10,10,10);
 
 float ambientSpotStrength = 0.5f;
 float specularSpotStrength = 0.5f;
-float shininessSpot = 32.0f;
+float shininessSpot;
 
 float spotlightCutOff = cos(radians(10));
 float spotlightOuterCutOff =  cos(radians(30));
@@ -168,21 +172,27 @@ float computeShadow()
 			
 	float currentDepth = normalizedCoords.z;
     float closestDepth = texture(shadowMap,normalizedCoords.xy).r;
-    float bias = 0.005;
+    float bias = max(0.005 * (1.0 - dot(normal, directionalLightDir)), 0.0005);
 
 	//Percentage-closer filtering
 	float shadow = 0.0;
 	vec2 texelSize = 1.0/textureSize(shadowMap,0);
-	for(int x=-1;x<=1;++x)
+
+	// at the distance of >= 50.0f units, render pcf resolution of 1x1
+	// at the distance of <= 5.0f units, render pdf resolution of 11x11
+	// everything in between, render at pcf resolution between 9x9 and 1x1
+	int rangeShadow = max(0, int(-0.111111*length(fPosEye) + 5.555556));
+
+	for(int x=-rangeShadow;x<=rangeShadow;++x)
 	{
-		for(int y=-1;y<=1;++y)
+		for(int y=-rangeShadow;y<=rangeShadow;++y)
 		{ 
 			float pcfDepth = texture(shadowMap,normalizedCoords.xy+vec2(x,y)*texelSize).r;
 			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0; 
 		}
 	}
 
-    return shadow/9.0f;	
+    return shadow/pow((rangeShadow*2+1),2);	
 }
 
 ////////////////////////////////////////////////////////////
@@ -243,6 +253,9 @@ int compareVec3(vec3 a, vec3 b)
 void main() 
 {
 	////////////////////////////////////////////////////////////
+	shininessDirectional = shininessFromDirectional;
+	shininessPoint = shininessFromPoint;
+	shininessSpot = shininessFromSpot;
 	directionalLightDir = normalize(directionalLightPosition - fPos);
     vec3 color = texture(diffuseTexture, fTexCoords).rgb;
     viewDir = normalize(fPosEye.xyz - fPos);

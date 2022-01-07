@@ -134,22 +134,18 @@ void processMovement() {
         
 	}
 
+    if (pressedKeys[GLFW_KEY_PERIOD]) {
+        if (movementSpeed < 16.0f)
+        {
+            movementSpeed += 3 * deltaTime.getDeltaTime();
+        }
+    }
+
     if (pressedKeys[GLFW_KEY_COMMA]) {
         if (movementSpeed > 4.0f)
         {
             movementSpeed -= 3 * deltaTime.getDeltaTime();
         }
-        printf("movementSpeed %f\n", movementSpeed);
-
-    }
-
-    if (pressedKeys[GLFW_KEY_PERIOD]) {
-        if (movementSpeed < 16.0f)
-        {
-            movementSpeed -= 3 * deltaTime.getDeltaTime();
-        }
-        printf("movementSpeed %f\n", movementSpeed);
-
     }
 
     if (pressedKeys[GLFW_KEY_G]) {

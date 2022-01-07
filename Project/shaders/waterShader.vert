@@ -18,6 +18,10 @@ uniform mat4 projection;
 uniform mat4 lightSpaceTrMatrix;
 uniform float time;
 
+out float shininessFromDirectional;
+out float shininessFromPoint;
+out float shininessFromSpot;
+
 int LFSR_Rand_Gen(in int n)
 {
   // <<, ^ and & require GL_EXT_gpu_shader4.
@@ -66,4 +70,8 @@ void main()
 	fTexCoords = vTexCoords;
 	fPosLightSpace = lightSpaceTrMatrix * model * vec4(newPosition, 1.0f);
 	gl_Position = projection * view * model * vec4(newPosition, 1.0f);
+
+	shininessFromDirectional = 16.0f;
+	shininessFromPoint = 8.0f;
+	shininessFromSpot = 4.0f;
 }

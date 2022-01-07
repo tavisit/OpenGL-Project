@@ -167,11 +167,11 @@ namespace gps {
 			return false;
 		}
 		// NPOT check
-		if ((x & (x - 1)) != 0 || (y & (y - 1)) != 0) {
+		/*if ((x & (x - 1)) != 0 || (y & (y - 1)) != 0) {
 			fprintf(
 				stderr, "WARNING: texture %s is not power-of-2 dimensions\n", file_name
 			);
-		}
+		}*/
 
 		int width_in_bytes = x * 4;
 		unsigned char *top = NULL;

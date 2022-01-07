@@ -122,8 +122,5 @@
     <None Include="shaders\waterShader.vert">
       <Filter>Files\Shaders</Filter>
     </None>
-    <None Include="shaders\waterShader.frag">
-      <Filter>Files\Shaders</Filter>
-    </None>
   </ItemGroup>
 </Project>
