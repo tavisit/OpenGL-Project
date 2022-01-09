@@ -99,7 +99,6 @@
     <ClInclude Include="Window.h">
       <Filter>Files\Low-Level</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shaderStart.frag">
@@ -123,8 +122,5 @@
     <None Include="shaders\waterShader.vert">
       <Filter>Files\Shaders</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Project.rc" />
   </ItemGroup>
 </Project>
