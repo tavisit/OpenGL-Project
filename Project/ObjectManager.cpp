@@ -63,11 +63,6 @@ namespace gps {
         view = myCamera.getViewMatrix();
         glUniformMatrix4fv(glGetUniformLocation(mainShader.shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-        // compute light direction transformation matrix
-        lightDirMatrix = glm::mat3(glm::inverseTranspose(view));
-        // send lightDir matrix data to shader
-        glUniformMatrix3fv(glGetUniformLocation(mainShader.shaderProgram, "lightDirMatrix"), 1, GL_FALSE, glm::value_ptr(lightDirMatrix));
-
         glViewport(0, 0, myWindow.getWindowDimensions().width, myWindow.getWindowDimensions().height);
         mainShader.useShaderProgram();
 

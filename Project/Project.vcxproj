@@ -42,6 +42,7 @@
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="Model3D.hpp" />
     <ClInclude Include="ObjectManager.hpp" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="SkyBox.hpp" />
     <ClInclude Include="stb_image.h" />
@@ -56,6 +57,9 @@
     <None Include="shaders\skyboxShader.frag" />
     <None Include="shaders\skyboxShader.vert" />
     <None Include="shaders\waterShader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Project.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

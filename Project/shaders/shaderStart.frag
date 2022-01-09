@@ -298,7 +298,7 @@ void main()
 		shadowConstant = 16.0;
 	}
 	////////////////////////////////////////////////////////////
-	vec3 shadowColor = (ambient + (1-shadow) * shadowConstant * (diffuse + specular)) * color; 
+	vec3 shadowColor = (ambient + (1.0-shadow) * shadowConstant * (diffuse + specular)) * color; 
     
 
 	if(fogEnable)
