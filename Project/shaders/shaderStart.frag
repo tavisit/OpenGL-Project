@@ -18,6 +18,7 @@ out vec4 fColor;
 uniform sampler2D diffuseTexture;
 uniform sampler2D specularTexture;
 uniform sampler2D shadowMap;
+uniform bool fogEnable;
 
 ////////////////////////////////////////////////////////////
 // directional light
@@ -299,11 +300,20 @@ void main()
 	////////////////////////////////////////////////////////////
 	vec3 shadowColor = (ambient + (1-shadow) * shadowConstant * (diffuse + specular)) * color; 
     
-	////////////////////////////////////////////////////////////
-	// Compute the fog factor
-	float fogFactor = computeFog();
-	vec3 fogColor = vec3(0.3f, 0.3f, 0.3f);
-	////////////////////////////////////////////////////////////
 
-	fColor = vec4(mix(fogColor, min(shadowColor * totalLight, vec3(1.0f)), fogFactor),alpha);
+	if(fogEnable)
+	{
+		////////////////////////////////////////////////////////////
+		// Compute the fog factor
+		float fogFactor = computeFog();
+		vec3 fogColor = vec3(0.3f, 0.3f, 0.3f);
+		////////////////////////////////////////////////////////////
+
+		fColor = vec4(mix(fogColor, min(shadowColor * totalLight, vec3(1.0f)), fogFactor),alpha);
+	}
+	else
+	{
+		fColor = vec4(min(shadowColor * totalLight, vec3(1.0f)),alpha);
+	}
+
 }

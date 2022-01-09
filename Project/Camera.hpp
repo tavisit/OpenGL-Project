@@ -35,6 +35,12 @@ namespace gps {
         void move(MOVE_DIRECTION direction, float speed);
 
         /// <summary>
+        /// Updates the camera internal parameters following a camera move event
+        /// </summary>
+        /// <param name="position"></param>
+        void move(glm::vec3 position);
+
+        /// <summary>
         /// Updates the camera internal parameters following a camera rotate event
         /// </summary>
         /// <param name="pitch">camera rotation around the y axis</param>
@@ -70,6 +76,12 @@ namespace gps {
         /// </summary>
         /// <returns></returns>
         bool getWalkingVar();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        glm::vec2 getRotationAxis();
         
     private:
 
@@ -85,6 +97,7 @@ namespace gps {
         glm::vec3 worldUp;
 
         glm::vec3 lastWalkingPosition;
+        glm::vec2 rotationAxis;
         bool walking;
         int cityBorders[4] = { 2,158,-158,158 };
     };

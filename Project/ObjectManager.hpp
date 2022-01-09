@@ -96,6 +96,13 @@ namespace gps {
         /// </summary>
         float getFOV();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name=""></param>
+        /// <param name="isMap"></param>
+        void mapAnimation(gps::Window myWindow, gps::Camera* myCamera, bool isMap, gps::DeltaTime deltaTime);
+
     private:
 
         ////////////////////////////////////////////////////////////////
@@ -160,6 +167,12 @@ namespace gps {
         /// Method which renders the colored objects
         /// </summary>
         void renderModels();
+
+        /// <summary>
+        /// Compute the projection matrix
+        /// </summary>
+        /// <param name="myWindow"></param>
+        void computeProjection(gps::Window myWindow);
 
         ////////////////////////////////////////////////////////////////
         // Shaders
@@ -230,6 +243,9 @@ namespace gps {
         // FOV
         ////////////////////////////////////////////////////////////////
         float FOV = 45.0f;
+        bool isMap = false;
+        glm::vec3 initialCameraPosition;
+        glm::vec2 initialCameraRotation;
 
         /// <summary>
         /// Shadow width resolution

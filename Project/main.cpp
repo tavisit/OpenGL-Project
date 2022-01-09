@@ -18,6 +18,7 @@ int horizontalWindowed = 720;
 int verticalWindowed = 1280;
 // window
 gps::Window myWindow;
+bool fullScreen = false;
 // camera
 gps::Camera myCamera(
     glm::vec3(1.0f, 0.5f, 5.0f),
@@ -43,7 +44,12 @@ gps::DeltaTime deltaTime;
 bool mouse = true;
 float lastX, lastY;
 float yaw = 90.0f, pitch;
-
+bool isMap = false; 
+double xLastPosMap;
+double yLastPosMap;
+extern "C" {
+    _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+}
 // Window resize callback
 void windowResizeCallback(GLFWwindow* window, int width, int height) {
 
@@ -66,6 +72,21 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
+    
+    if (action == GLFW_RELEASE && key == GLFW_KEY_M) {
+        pressedKeys[GLFW_KEY_M] = true;
+    }
+
+    if (action == GLFW_RELEASE && key == GLFW_KEY_F) {
+        pressedKeys[GLFW_KEY_F] = true;
+    }
+    if (action == GLFW_RELEASE && key == GLFW_KEY_K) {
+        pressedKeys[GLFW_KEY_K] = true;
+    }
+
+    if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
+        pressedKeys[GLFW_KEY_N] = true;
+    }
 
 	if (key >= 0 && key < 1024) {
         if (action == GLFW_PRESS) {
@@ -77,9 +98,15 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    objectManager.setFOV(objectManager.getFOV() - yoffset * deltaTime.getDeltaTime() * 16, myWindow);
+    if (!isMap)
+    {
+        objectManager.setFOV(objectManager.getFOV() - yoffset * deltaTime.getDeltaTime() * 16, myWindow);
+    }
 }
 void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
+    if (isMap)
+        return;
+
     if (mouse)
     {
         lastX = xpos;
@@ -103,6 +130,8 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
         pitch = 89.0f;
     if (pitch < -89.0f)
         pitch = -89.0f;
+    xLastPosMap = xpos;
+    yLastPosMap = ypos;
 
     myCamera.rotate(pitch, yaw);
 }
@@ -114,25 +143,41 @@ void processMovement() {
         actualMovementSpeed *= 4;
     }
 
-	if (pressedKeys[GLFW_KEY_W]) {
-		myCamera.move(gps::MOVE_FORWARD, actualMovementSpeed);
-        
-	}
+    if (!isMap)
+    {
+        if (pressedKeys[GLFW_KEY_W]) {
+            myCamera.move(gps::MOVE_FORWARD, actualMovementSpeed);
 
-	if (pressedKeys[GLFW_KEY_S]) {
-		myCamera.move(gps::MOVE_BACKWARD, actualMovementSpeed);
-        
-	}
+        }
 
-	if (pressedKeys[GLFW_KEY_A]) {
-		myCamera.move(gps::MOVE_LEFT, actualMovementSpeed);
-        
-	}
+        if (pressedKeys[GLFW_KEY_S]) {
+            myCamera.move(gps::MOVE_BACKWARD, actualMovementSpeed);
 
-	if (pressedKeys[GLFW_KEY_D]) {
-		myCamera.move(gps::MOVE_RIGHT, actualMovementSpeed);
-        
-	}
+        }
+
+        if (pressedKeys[GLFW_KEY_A]) {
+            myCamera.move(gps::MOVE_LEFT, actualMovementSpeed);
+
+        }
+
+        if (pressedKeys[GLFW_KEY_D]) {
+            myCamera.move(gps::MOVE_RIGHT, actualMovementSpeed);
+
+        }
+
+        if (pressedKeys[GLFW_KEY_K]) {
+            myCamera.setWalkingVar(!myCamera.getWalkingVar()); 
+            pressedKeys[GLFW_KEY_K] = false;
+        }
+
+        if (pressedKeys[GLFW_KEY_1]) {
+            objectManager.setSpotLight(0, 1);
+        }
+        if (pressedKeys[GLFW_KEY_2]) {
+            objectManager.setSpotLight(0, 0);
+        }
+    }
+	
 
     if (pressedKeys[GLFW_KEY_PERIOD]) {
         if (movementSpeed < 16.0f)
@@ -148,27 +193,35 @@ void processMovement() {
         }
     }
 
-    if (pressedKeys[GLFW_KEY_G]) {
-        glfwSetWindowMonitor(myWindow.getWindow(), nullptr, 100, 100, verticalWindowed, horizontalWindowed, GLFW_DONT_CARE);
-    }
     if (pressedKeys[GLFW_KEY_F]) {
-        glfwSetWindowMonitor(myWindow.getWindow(), glfwGetPrimaryMonitor(), 0, 0, verticalMonitor, horizontalMonitor, GLFW_DONT_CARE);
-    }
-
-    if (pressedKeys[GLFW_KEY_K]) {
-        myCamera.setWalkingVar(true);
-    }
-    if (pressedKeys[GLFW_KEY_L]) {
-        myCamera.setWalkingVar(false);
+        if (fullScreen)
+        {
+            glfwSetWindowMonitor(myWindow.getWindow(), nullptr, 100, 100, verticalWindowed, horizontalWindowed, GLFW_DONT_CARE);
+        }
+        else
+        {
+            glfwSetWindowMonitor(myWindow.getWindow(), glfwGetPrimaryMonitor(), 0, 0, verticalMonitor, horizontalMonitor, GLFW_DONT_CARE);
+        }
+        fullScreen = !fullScreen;
+        pressedKeys[GLFW_KEY_F] = false;
     }
 
     if (pressedKeys[GLFW_KEY_N])
     {
-        objectManager.setAutoDay(true);
+        objectManager.setAutoDay(!objectManager.getAutoDay());
+        pressedKeys[GLFW_KEY_N] = false;
     }
+
     if (pressedKeys[GLFW_KEY_M])
     {
-        objectManager.setAutoDay(false);
+        isMap = !isMap;
+        objectManager.mapAnimation(myWindow, &myCamera, isMap, deltaTime);
+        pressedKeys[GLFW_KEY_M] = false;
+        if (!isMap)
+        {
+            glfwSetCursorPos(myWindow.getWindow(), xLastPosMap, yLastPosMap);
+            mouseCallback(myWindow.getWindow(), xLastPosMap, yLastPosMap);
+        }
     }
 
     if (pressedKeys[GLFW_KEY_EQUAL])
@@ -194,12 +247,6 @@ void processMovement() {
             }
             objectManager.setDirectionalLightIntensity(newValue);
         }
-    }
-    if (pressedKeys[GLFW_KEY_1]) {
-        objectManager.setSpotLight(0,1);
-    }
-    if (pressedKeys[GLFW_KEY_2]) {
-        objectManager.setSpotLight(0,2);
     }
 
     // line view
@@ -290,12 +337,10 @@ void writeCredits()
     std::cout << "* WASD for movement\n";
     std::cout << "* Mouse to look around\n";
     std::cout << "* Scroll to change FOV\n";
-    std::cout << "* G windowed mode\n";
-    std::cout << "* F fullscreen mode\n";
-    std::cout << "* K walking mode\n";
-    std::cout << "* L fly mode\n";
-    std::cout << "* N autoday on\n";
-    std::cout << "* M autoday off\n";
+    std::cout << "* F fullscreen/windowed mode\n";
+    std::cout << "* M Map mode\n";
+    std::cout << "* K walking/fly mode\n";
+    std::cout << "* N autoday on/off\n";
     std::cout << "* if autoday off then:\n";
     std::cout << "          * - decrease time of day\n";
     std::cout << "          * + increase time of day\n";

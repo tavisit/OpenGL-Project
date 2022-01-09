@@ -252,7 +252,7 @@ namespace gps {
             }
         }
 
-        int hideElevation = 40;
+        int hideElevation = 200;
         for (int index = 0; index < BUILDINGS_NUMBER; index++)
         {
             insulaRomanaObjects[index].scaleDistance(30);
@@ -344,7 +344,7 @@ namespace gps {
     }
     void ObjectManager::resizeWindow(gps::Window myWindow)
     {
-        projection = glm::perspective(glm::radians(FOV), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
+        computeProjection(myWindow);
 
         mainShader.useShaderProgram();
         GLint projLoc = glGetUniformLocation(mainShader.shaderProgram, "projection");
@@ -361,7 +361,8 @@ namespace gps {
     }
     glm::mat4 ObjectManager::getProjection(gps::Window myWindow)
     {
-        projection = glm::perspective(glm::radians(FOV), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
+
+        computeProjection(myWindow);
         return projection;
     }
     void ObjectManager::setFOV(float newFov, gps::Window myWindow)
@@ -370,7 +371,7 @@ namespace gps {
         {
             this->FOV = newFov;
 
-            projection = glm::perspective(glm::radians(FOV), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
+            computeProjection(myWindow);
 
             mainShader.useShaderProgram();
             GLint projLoc = glGetUniformLocation(mainShader.shaderProgram, "projection");
@@ -385,6 +386,74 @@ namespace gps {
     {
         return FOV;
     }
+
+    void ObjectManager::mapAnimation(gps::Window myWindow,gps::Camera* myCamera, bool isMap, gps::DeltaTime deltaTime)
+    {
+        this->isMap = isMap;
+        if (isMap)
+        {
+            initialCameraPosition = myCamera->getCameraPosition();
+            glm::vec2 rotation = myCamera->getRotationAxis();
+            while (rotation.x > -90)
+            {
+                deltaTime.calculateDeltaTime(true);
+                rotation = myCamera->getRotationAxis();
+                myCamera->rotate(rotation.x - 5 * deltaTime.getRotationSpeed(), rotation.y);
+
+                glm::vec3 cameraPosition = myCamera->getCameraPosition();
+                myCamera->move(glm::vec3(cameraPosition.x, cameraPosition.y + 10 * deltaTime.getTranslationSpeed(), cameraPosition.z));
+
+                renderScene(myWindow, *myCamera, deltaTime); 
+                glfwPollEvents();
+                glfwSwapBuffers(myWindow.getWindow());
+            }
+
+            myCamera->rotate(-90, 90);
+            myCamera->move(glm::vec3(0, 100, 80));
+
+            mainShader.useShaderProgram();
+            glUniform1f(glGetUniformLocation(mainShader.shaderProgram, "fogEnable"), false);
+            waterShader.useShaderProgram();
+            glUniform1f(glGetUniformLocation(waterShader.shaderProgram, "fogEnable"), false); 
+        }
+        else
+        {
+            glm::vec3 cameraPosition = myCamera->getCameraPosition();
+            glm::vec2 rotation = glm::vec2(-90,90);
+
+            while (cameraPosition.y > 20.0f && rotation.x < 0.0f)
+            {
+                deltaTime.calculateDeltaTime(true);
+                myCamera->rotate(rotation.x + 5 * deltaTime.getRotationSpeed(), rotation.y);
+                rotation = myCamera->getRotationAxis();
+
+                cameraPosition = myCamera->getCameraPosition();
+                myCamera->move(glm::vec3(cameraPosition.x, cameraPosition.y - 5 * deltaTime.getTranslationSpeed(), cameraPosition.z - 5 * deltaTime.getTranslationSpeed()));
+
+                renderScene(myWindow, *myCamera, deltaTime);
+                glfwPollEvents();
+                glfwSwapBuffers(myWindow.getWindow());
+            }
+            myCamera->move(initialCameraPosition);
+
+            mainShader.useShaderProgram();
+            glUniform1f(glGetUniformLocation(mainShader.shaderProgram, "fogEnable"), true);
+            waterShader.useShaderProgram();
+            glUniform1f(glGetUniformLocation(waterShader.shaderProgram, "fogEnable"), true);
+        }
+
+        computeProjection(myWindow);
+
+        mainShader.useShaderProgram();
+        GLint projLoc = glGetUniformLocation(mainShader.shaderProgram, "projection");
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        waterShader.useShaderProgram();
+        projLoc = glGetUniformLocation(waterShader.shaderProgram, "projection");
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+        
+    }
+    
     void ObjectManager::setDirectionalLightIntensity(GLfloat intensity)
     {
         directionalLightPosition = getSunPositionByIntensity(intensity);
@@ -447,7 +516,7 @@ namespace gps {
 
     void ObjectManager::setSpotLight(int index,int value)
     {
-        if (index < SPOT_LIGHTS_MAX)
+        if (index < SPOT_LIGHTS_MAX && index >= 0)
         {
             this->spotLights[index].spotinit = value;
         }
@@ -553,7 +622,7 @@ namespace gps {
     }
     void ObjectManager::initUniforms(gps::Window myWindow)
     {
-        projection = glm::perspective(glm::radians(FOV), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
+        computeProjection(myWindow);
         // set light color
         setDirectionalLightIntensity(1.0f);
         mainShader.useShaderProgram();
@@ -575,6 +644,7 @@ namespace gps {
             glUniform3fv(i * 3 + 1 + spotLightLocationBegin, 1, glm::value_ptr(spotLights[i].spotLightDirection));
             glUniform3fv(i * 3 + 2 + spotLightLocationBegin, 1, glm::value_ptr(spotLights[i].spotLightPosition));
         }
+        glUniform1f(glGetUniformLocation(mainShader.shaderProgram, "fogEnable"), true);
 
         waterShader.useShaderProgram();
         glUniformMatrix4fv(glGetUniformLocation(waterShader.shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
@@ -596,13 +666,14 @@ namespace gps {
         glUniform3fv(glGetUniformLocation(waterShader.shaderProgram, "directionalLightPosition"), 1, glm::value_ptr(directionalLightPosition));
         directionalLightColorLoc = glGetUniformLocation(waterShader.shaderProgram, "directionalLightColor");
         glUniform3fv(directionalLightColorLoc, 1, glm::value_ptr(directionalLightColor));
+        glUniform1f(glGetUniformLocation(waterShader.shaderProgram, "fogEnable"), true);
 
         
     }
 
     glm::mat4 ObjectManager::computeLightSpaceTrMatrix(gps::Window myWindow, gps::Camera myCamera)
     {
-        const GLfloat near_plane = 20.0f, far_plane = glm::length(directionalLightPosition - glm::vec3(0, -2.0f, 80.0f))+100.0f;
+        const GLfloat near_plane = 20.0f, far_plane = glm::length(directionalLightPosition - glm::vec3(0, -2.0f, 80.0f))+150.0f;
         glm::mat4 lightProjection = glm::ortho(
             -160.0f,
             160.0f,
@@ -717,6 +788,24 @@ namespace gps {
         waterFountainObject.drawObject( view, &waterFountain, &mainShader);
         forumObject.drawObject( view, &forum, &mainShader);
         directionalLightSphereObject.drawObject(view, &directionalLightSphere, &mainShader);
+
+    }
+    void ObjectManager::computeProjection(gps::Window myWindow)
+    {
+        if (!isMap)
+        {
+            projection = glm::perspective(glm::radians(FOV), (float)myWindow.getWindowDimensions().width / (float)myWindow.getWindowDimensions().height, 0.1f, 1000.0f);
+        }
+        else
+        {
+            projection = glm::ortho(
+                -180.0f,
+                180.0f,
+                -100.0f,
+                100.0f,
+                0.0f,
+                200.0f);
+        }
 
     }
 }
