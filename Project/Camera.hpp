@@ -54,12 +54,6 @@ namespace gps {
         glm::vec3 getCameraPosition();
 
         /// <summary>
-        /// Getter for the camera target vector
-        /// </summary>
-        /// <returns></returns>
-        glm::vec3 getCameraTarget();
-
-        /// <summary>
         /// Getter for the camera front direction vector
         /// </summary>
         /// <returns></returns>

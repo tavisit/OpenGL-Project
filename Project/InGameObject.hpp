@@ -66,7 +66,7 @@ namespace gps {
         /// <param name="angle"></param>
         /// <param name="rotationDirection"></param>
         /// <param name="speed"></param>
-        void rotationDistance(GLfloat angle, ROTATION_DIRECTION rotationDirection, GLfloat speed = 1.0f);
+        void rotationDistance(GLfloat angle, ROTATION_AXIS rotationDirection, GLfloat speed = 1.0f);
         /// <summary>
         /// Scale the object a given relative scale
         /// </summary>

@@ -71,7 +71,7 @@ namespace gps {
             sound->setPosition(vec3df(location.x, location.y, location.z));
         }
     }
-    void InGameObject::rotationDistance(GLfloat angle, ROTATION_DIRECTION rotationDirection, GLfloat speed)
+    void InGameObject::rotationDistance(GLfloat angle, ROTATION_AXIS rotationDirection, GLfloat speed)
     {
         glm::vec3 newRotation;
         switch (rotationDirection)

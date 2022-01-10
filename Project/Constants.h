@@ -21,6 +21,6 @@ namespace gps {
     /// <summary>
     /// Enum that stores the rotation directions for Camera and InGameObject usage
     /// </summary>
-    enum ROTATION_DIRECTION { X_AXIS, Y_AXIS, Z_AXIS};
+    enum ROTATION_AXIS { X_AXIS, Y_AXIS, Z_AXIS};
 
 }
