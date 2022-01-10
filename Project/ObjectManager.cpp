@@ -668,7 +668,7 @@ namespace gps {
 
     glm::mat4 ObjectManager::computeLightSpaceTrMatrix(gps::Window myWindow, gps::Camera myCamera)
     {
-        const GLfloat near_plane = 20.0f, far_plane = glm::length(directionalLightPosition - glm::vec3(0, -2.0f, 80.0f))+150.0f;
+        const GLfloat near_plane = 5.0f, far_plane = glm::length(directionalLightPosition - glm::vec3(0, 0.0f, 80.0f)) + 150.0f;
         glm::mat4 lightProjection = glm::ortho(
             -160.0f,
             160.0f,
@@ -679,7 +679,7 @@ namespace gps {
 
         glm::mat4 lightView = glm::lookAt(
             directionalLightPosition,
-            glm::vec3(0, -2.0f, 80.0f),
+            glm::vec3(0, 0.0f, 80.0f),
             glm::vec3(0.0f, 1.0f, 0.0f));
 
         return lightProjection * lightView;
