@@ -49,7 +49,8 @@ The town has the following elements:
 * Merchant stalls
 * Grass
 * Skybox
-This elements were combined in order to produce the following demo images:
+
+These elements were combined in order to produce the following demo images:
 * Map view of the city
 ![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/map_demo.png?raw=true)
 * Night time atmosphere
@@ -59,12 +60,83 @@ This elements were combined in order to produce the following demo images:
 
 ## Functionalities
 
+The player has many ways to control the world in this project. A clear way to see these controls is to start the game, because they are written in the cmd before the game opens GLWindow. For the ease of explanation, these are:
+* WASD for movement
+* Mouse to look around
+* Scroll to change FOV
+* F fullscreen/windowed mode
+* M Map mode
+* K walking/fly mode
+* N autoday on/off
+* if autoday off then:
+  * \- decrease time of day
+  * \+ increase time of day
+* , decrease movement speed
+* . increase movement speed
+* 1 turn on flashlight
+* 2 turn off flashlight
+* 7 GL_LINE vision mode
+* 8 GL_POINT vision mode
+* 9 GL_FILL vision mode
+
+A small animation will play everytime the user enters or exists the map mode. In the map mode, the movement of the camera is blocked, the mouse events are disabled, the user cannot switch between walking and fly mode and the player cannot turn off/on the flashlight.
+
 <div style="page-break-after: always;"></div>
 
 # Implementation details
+
 ## Functions and special algorithms
+
+A range of algorithms were used to create the atmosphere and the look of the application:
+1. Blinn–Phong reflection model
+2. Point light
+3. Spotlight light
+4. Dynamic Percentage-closer filtering
+5. Day-Night cycle with moving Sun and responsive street lights
+6. Map Animation
+
+### Blinn–Phong reflection model
+
+### Pointlight
+
+### Spotlight
+
+### Dynamic Percentage-closer filtering
+
+### Day-Night cycle with moving Sun and responsive street lights
+
+### Map Animation
+
 ## Graphics model
+
+Almost every model was created by me in Blender using textures from internet[^2^3](references). These sites only provided the ambient texture, so I've used the free tool NormalMap-Online[^4](#references) in order to create the Normal, Specular and sometimes the displacement maps. This part was very fun, because I really enjoyed creating something from scratch and seeing it in the world that I've created. The only model that was imported from internet[^1](#references) was the statue, because I do not posess such artistic skills.
+
+For the sound effects, Freesound.org[^5](#references) and Pixabay.com[^2](#references) were the main sources, but I've also recorded my own voice for the merchants shouts.
+
 ## Data structures
+
+An array of data structures were used. The most useful and interesting were:
+1. POINT_LIGHT struct in .frag and Objectmanager.cpp
+```
+struct POINT_LIGHT
+{
+    vec3 location; // location of the light
+    vec3 color;    // color of the light
+    float intensity; // intensity of the light
+	// 3 locations
+};
+```
+3. SPOT_LIGHT struct in .frag and Objectmanager.cpp
+```
+struct SPOT_LIGHT
+{
+    int spotinit; // if the spot light is on/off
+    vec3 spotLightDirection; // vector for the light direction
+    vec3 spotLightPosition; // location of the light
+	// 3 locations
+};
+```
+5. std::vector<gps::InGameObject> object
 
 <div style="page-break-after: always;"></div>
 
@@ -82,3 +154,9 @@ This elements were combined in order to produce the following demo images:
 <div style="page-break-after: always;"></div>
 
 # References
+
+1. [Low Poly Roman Insula 1 by lexferreira89](https://sketchfab.com/3d-models/low-poly-roman-insula-1-wip-6562e2ffeb3c4bd8ae5b714c6600db20)
+2. [Pixabay](https://pixabay.com/)
+3. [Solar texture](https://www.solarsystemscope.com/textures/)
+4. [NormalMap-Online](https://cpetry.github.io/NormalMap-Online/)
+5. [Freesound](https://freesound.org/)
