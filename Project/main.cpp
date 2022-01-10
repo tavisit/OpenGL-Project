@@ -329,6 +329,7 @@ void writeCredits()
     std::cout << "https://pixabay.com/ \n";
     std::cout << "https://freesound.org/ \n";
     std::cout << "\n\n            Textures\n\n";
+    std::cout << "https://pixabay.com/ \n";
     std::cout << "https://www.solarsystemscope.com/textures/ \n";
     std::cout << "Creation of texture maps: https://cpetry.github.io/NormalMap-Online/ \n";
     std::cout << "\n\n            Code Ideas\n\n";
