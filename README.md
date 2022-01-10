@@ -23,7 +23,7 @@
 <div style="page-break-after: always;"></div>
 
 ### QR to the [github repository](https://github.com/tavisit/OpenGL-Project)
-![image](https://user-images.githubusercontent.com/28965189/139591086-13d46bde-bc08-434e-9dd7-14d024f98768.png)
+![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/qr-code.png?raw=true)
 
 <div style="page-break-after: always;"></div>
 
@@ -36,6 +36,7 @@
 ## Graphics model
 ## Data structures
 ## Class hierarchy
+![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/uml.png?raw=true)
 # Graphical user interface presentation
 # Conclusions
 # References
