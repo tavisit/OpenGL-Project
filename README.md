@@ -51,11 +51,11 @@ The town has the following elements:
 * Skybox
 This elements were combined in order to produce the following demo images:
 * Map view of the city
-![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/uml.png?raw=true)
+![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/map_demo.png?raw=true)
 * Night time atmosphere
-![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/uml.png?raw=true)
+![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/night_time.png?raw=true)
 * View of the forum
-![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/uml.png?raw=true)
+![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/water.png?raw=true)
 
 ## Functionalities
 
