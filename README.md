@@ -93,6 +93,7 @@ A range of algorithms were used to create the atmosphere and the look of the app
 4. Water movement
 5. Day-Night cycle with moving Sun and responsive street lights
 6. Map Animation
+7. Music and positional sounds
 
 
 ### Pointlight
@@ -138,10 +139,11 @@ float disp = noise3f(newPosition*time);
 newPosition.y = newPosition.y  + sin(disp + uv.y)/50.0f;
 ```
 
-
 ### Day-Night cycle with moving Sun and responsive street lights
 
 ### Map Animation
+
+### Music and positional sounds
 
 ## Graphics model
 
