@@ -90,8 +90,9 @@ A range of algorithms were used to create the atmosphere and the look of the app
 1. Point light
 2. Spotlight light
 3. Dynamic Percentage-closer filtering
-4. Day-Night cycle with moving Sun and responsive street lights
-5. Map Animation
+4. Water movement
+5. Day-Night cycle with moving Sun and responsive street lights
+6. Map Animation
 
 
 ### Pointlight
@@ -120,8 +121,23 @@ for(int x=-rangeShadow;x<=rangeShadow;++x)
 	}
 }
 ```
-The difference between two PCF resolutions can be seen in the screenshot bellow:
-![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/flashlight.png?raw=true)
+A comparison between two PCF resolutions can be observed by looking at the shadow cast near the camera and on the water level:
+![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/PCF.png?raw=true)
+
+### Water movement
+
+Water level varies pseudorandomly using a LFSR random generator function[^6](#reference). The function creates a random number with the seed representing the current time and fragment vertex position. Then, it gets added to a variable that assures that the water level flows in a pretty realistic way, without breakes in the average mesh of the object.
+
+```
+vec2 resolution = vec2(1024,1024);
+vec2 cPos = -1.0 + 2.0 * vPosition.xy / resolution.xy;
+float cLength = length(cPos);
+vec2 uv = vPosition.xy/resolution.xy+(cPos/cLength)*cos(cLength*12.0-time*4.0) * 0.05;
+vec3 newPosition = vPosition;
+float disp = noise3f(newPosition*time);
+newPosition.y = newPosition.y  + sin(disp + uv.y)/50.0f;
+```
+
 
 ### Day-Night cycle with moving Sun and responsive street lights
 
@@ -178,3 +194,4 @@ This data structure was used in order to create enough instances of InGameObject
 3. [Solar texture](https://www.solarsystemscope.com/textures/)
 4. [NormalMap-Online](https://cpetry.github.io/NormalMap-Online/)
 5. [Freesound](https://freesound.org/)
+6. [Water waves pattern](https://www.geeks3d.com/20100831/shader-library-noise-and-pseudo-random-number-generator-in-glsl/)
