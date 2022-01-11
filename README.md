@@ -17,7 +17,6 @@
   * [Graphics model](#graphics-model)
   * [Data structures](#data-structures)
   * [Class hierarchy](#class-hierarchy)
-* [Graphical user interface presentation / user manual](#graphical-user-interface-presentation)
 * [Conclusions](#conclusions)
 * [References](#references)
 
@@ -88,20 +87,41 @@ A small animation will play everytime the user enters or exists the map mode. In
 ## Functions and special algorithms
 
 A range of algorithms were used to create the atmosphere and the look of the application:
-1. Blinn–Phong reflection model
-2. Point light
-3. Spotlight light
-4. Dynamic Percentage-closer filtering
-5. Day-Night cycle with moving Sun and responsive street lights
-6. Map Animation
+1. Point light
+2. Spotlight light
+3. Dynamic Percentage-closer filtering
+4. Day-Night cycle with moving Sun and responsive street lights
+5. Map Animation
 
-### Blinn–Phong reflection model
 
 ### Pointlight
 
+![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/night_time.png?raw=true)
+
 ### Spotlight
 
+![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/flashlight.png?raw=true)
+
 ### Dynamic Percentage-closer filtering
+
+It is used to create soft shadows or to create the apparent increase in shadow map resolution. In the project, it is implemented a special flavour of this algorithm, in the sense that it is calculated the distance from the fragment to the camera and depending on that, the resolution of the PCF will vary from a map of 1x1 (or a single pass) to a map resolution of 11x11 in order to create smooth and soft shadows when the player is close to an object. If the user is at a distance greater than 50 units, then the resolution will be 1x1. As the player gets closer, the resolution increases, until the camera is at 5 units, then the resolution remains at 11x11, in order not to burden the GPU with more calculations than it is necessary. This was implemented in order to simulate the multiple shadow map passes used in modern computer graphics. 
+
+```
+float shadow = 0.0;
+vec2 texelSize = 1.0/textureSize(shadowMap,0);
+int rangeShadow = max(0, min(5,int(-0.111111*length(fPosEye) + 5.555556)));
+
+for(int x=-rangeShadow;x<=rangeShadow;++x)
+{
+	for(int y=-rangeShadow;y<=rangeShadow;++y)
+	{ 
+		float pcfDepth = texture(shadowMap,normalizedCoords.xy+vec2(x,y)*texelSize).r;
+		shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0; 
+	}
+}
+```
+The difference between two PCF resolutions can be seen in the screenshot bellow:
+![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/flashlight.png?raw=true)
 
 ### Day-Night cycle with moving Sun and responsive street lights
 
@@ -126,7 +146,7 @@ struct POINT_LIGHT
 	// 3 locations
 };
 ```
-3. SPOT_LIGHT struct in .frag and Objectmanager.cpp
+2. SPOT_LIGHT struct in .frag and Objectmanager.cpp
 ```
 struct SPOT_LIGHT
 {
@@ -136,16 +156,14 @@ struct SPOT_LIGHT
 	// 3 locations
 };
 ```
-5. std::vector<gps::InGameObject> object
+3. std::vector<gps::InGameObject> object
+
+This data structure was used in order to create enough instances of InGameObject classes to store the information of each object. It was chosen this behavior, in order to save resources when the application runs, as well as future proofing the implementation if a frustum culling or similar implementation is added later, which might require the programmer to dynamically control all the objects in the scene.
 
 <div style="page-break-after: always;"></div>
 
 ## Class hierarchy
 ![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/uml.png?raw=true)
-
-<div style="page-break-after: always;"></div>
-
-# Graphical user interface presentation
 
 <div style="page-break-after: always;"></div>
 
