@@ -1,6 +1,6 @@
 ![UTCN](https://doctorat.utcluj.ro/images/utcn-logo.png)
-## Student Octavian-Mihai Matei
-## Group 3043
+## Student: Octavian-Mihai Matei
+## Group: 3043
 
 <div style="page-break-after: always;"></div>
 
@@ -32,8 +32,6 @@
 The subject of the project consists in the photorealistic presentation of 3D objects using OpenGL library. The user directly manipulates by mouse and keyboard inputs the scene of objects.
 For this purpose, an ancient scene was created where the user can interact with the camera, move around the town, day-night cycle and many more functionalities.
 
-<div style="page-break-after: always;"></div>
-
 # Scenario
 ## Scene and objects description
 
@@ -56,6 +54,9 @@ These elements were combined in order to produce the following demo images:
 ![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/night_time.png?raw=true)
 * View of the forum
 ![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/water.png?raw=true)
+
+
+<div style="page-break-after: always;"></div>
 
 ## Functionalities
 
@@ -100,6 +101,8 @@ A range of algorithms were used to create the atmosphere and the look of the app
 
 ![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/night_time.png?raw=true)
 
+<div style="page-break-after: always;"></div>
+
 ### Spotlight
 
 ![image](https://github.com/tavisit/OpenGL-Project/blob/main/git_resources/flashlight.png?raw=true)
@@ -139,6 +142,8 @@ float disp = noise3f(newPosition*time);
 newPosition.y = newPosition.y  + sin(disp + uv.y)/50.0f;
 ```
 
+<div style="page-break-after: always;"></div>
+
 ### Day-Night cycle with moving Sun and responsive street lights
 
 This behavior is pretty simple in the sense that the directional light will change its vector to appear as if the sun is moving on the sky. What it makes it difficult, is the behavior of the directional light color and street lights that modify along with the sun's position on the sky.
@@ -170,6 +175,8 @@ The street lights will change their color and intensity based on this ``intensit
 
 That can be concluded that the times of day that were implemented are symmetrical around the day part of the game, but they needed some alterations, especially when we talk about the formula of calculation 
 
+<div style="page-break-after: always;"></div>
+
 ### Map Animation
 
 The map animation has two important parts that work togheter, in order to provide the effect of map transition. This movement was inspired by various games that provide a map system to the player. These parts are:
@@ -194,6 +201,7 @@ while (rotation.x > -90) // when camera goes from street view to map view
 }
 ```
 
+<div style="page-break-after: always;"></div>
 
 ### Music and positional sounds
 
@@ -209,6 +217,8 @@ vec3df cameraPosition = vec3df(myCamera.getCameraPosition().x, myCamera.getCamer
 vec3df cameraDirection = vec3df(myCamera.getCameraFrontDirection().x, myCamera.getCameraFrontDirection().y, myCamera.getCameraFrontDirection().z);
 SoundEngine->setListenerPosition(cameraPosition, cameraDirection);
 ```
+
+<div style="page-break-after: always;"></div>
 
 ## Graphics model
 
