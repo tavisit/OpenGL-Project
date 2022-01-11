@@ -159,12 +159,15 @@ namespace gps {
         waterFountainObject.translateDistance(3.1, gps::MOVE_DOWN, 1);
         waterFountainObject.scaleDistance(4);
 
+        waterPoolsObject[0].initializeSounds(SoundEngine, "Music/fountain.mp3",1.0f,10.0f);
         waterPoolsObject[0].translateDistance(80, gps::MOVE_BACKWARD, 1);
         waterPoolsObject[0].translateDistance(1.5, gps::MOVE_DOWN, 1);
         waterPoolsObject[0].scaleDistance(3.6f);
 
+        waterPoolsObject[1].initializeSounds(SoundEngine, "Music/fountain.mp3", 1.0f, 5.0f);
         waterPoolsObject[1].translateAbsolute(glm::vec3(85.0f,-2.8f,25.0f));
         waterPoolsObject[1].scaleDistance(1.5f);
+        waterPoolsObject[2].initializeSounds(SoundEngine, "Music/fountain.mp3", 1.0f, 5.0f);
         waterPoolsObject[2].translateAbsolute(glm::vec3(85.0f, -2.8f,45.0f));
         waterPoolsObject[2].scaleDistance(1.5f);
 
